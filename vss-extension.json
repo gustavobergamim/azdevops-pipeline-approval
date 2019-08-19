@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "version": "0.0.1-Alpha",
+  "version": "0.0.1",
   "name": "Azure Pipelines Approval",
   "description": "A short description of my extension",
   "publisher": "gustavobergamim",
@@ -22,7 +22,7 @@
     }
   },
   "icons": {
-    "default": "img/server_accept.png"
+    "default": "img/server_accept_black.png"
   },
   "files": [
     {
@@ -41,17 +41,17 @@
       "description": "Azure Pipelines Approval Hub Group",
       "targets": ["ms.vss-build-web.build-release-hub-group"],
       "properties": {
-        "name": "Hello World!",
+        "name": "Approve Releases",
         "icon": {
-          "dark": "img/server_accept.svg",
-          "light": "img/server_accept.svg"
+          "dark": "img/server_accept_white.png",
+          "light": "img/server_accept_black.png"
         }
       }
     },
     {
       "id": "default-hub",
       "type": "ms.vss-web.hub",
-      "targets": [".hello-world-hub-group"],
+      "targets": [".pipeline-approval-hub-group"],
       "properties": {
         "uri": "dist/hub/hub.html"
       }

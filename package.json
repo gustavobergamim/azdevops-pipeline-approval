@@ -10,7 +10,7 @@
     "package:dev": "npm run compile:dev && tfx extension create --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out",
     "publish": "npm run compile && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/release.json --output-path out",
     "publish:dev": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out",
-    "publish:dev:pat": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --token $AZ_DEVOPS_MARKETPLACE_PAT",
+    "publish:dev:pat": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --token $AZ_DEVOPS_MARKETPLACE_PAT",
     "start:dev": "webpack-dev-server --mode development"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "react-dom": "^16.8.6"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.137",
     "@types/react": "^16.8.18",
     "@types/react-dom": "^16.8.4",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
