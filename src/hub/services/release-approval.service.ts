@@ -1,7 +1,7 @@
 import * as SDK from "azure-devops-extension-sdk";
 import { ReleaseRestClient, ApprovalStatus } from "azure-devops-extension-api/Release";
 import { getClient, IProjectPageService, CommonServiceIds } from "azure-devops-extension-api";
-import { IReleaseApproval } from "@src-root/core/model/IReleaseApproval";
+import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 
 export class ReleaseApprovalService {
 
@@ -9,7 +9,7 @@ export class ReleaseApprovalService {
         SDK.init();
     }
 
-    public async list(top:number = 50): Promise<IReleaseApproval[]> {
+    async listAll(top: number = 50): Promise<IReleaseApproval[]> {
         const projectService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);
         const project = await projectService.getProject();
         if (!project) return [];
@@ -37,11 +37,11 @@ export class ReleaseApprovalService {
         await client.updateReleaseApproval(approval, project.name, approval.id);
     }
 
-    public async approve(approval: IReleaseApproval, comment: string): Promise<void> {
+    async approve(approval: IReleaseApproval, comment: string): Promise<void> {
         await this.changeStatus(approval, ApprovalStatus.Approved, comment);
     }
 
-    public async reject(approval: IReleaseApproval, comment: string): Promise<void> {
+    async reject(approval: IReleaseApproval, comment: string): Promise<void> {
         await this.changeStatus(approval, ApprovalStatus.Rejected, comment);
     }
 }

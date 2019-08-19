@@ -10,6 +10,6 @@ module.exports = {
       "typescript",
       "typescriptreact"
     ],
-    semi: "always"
+    semi: 2
   }
 };
