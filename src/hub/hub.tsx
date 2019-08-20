@@ -61,6 +61,20 @@ class Hub extends React.Component<{}> {
         }
       },
       text: "Reject All"
+    },
+    {
+      id: "refresh",
+      iconProps: {
+        iconName: "Refresh"
+      },
+      important: true,
+      onActivate: async () => {
+        const grid = this._releaseGrid.current as ReleaseApprovalGrid;
+        if (grid != null) {
+          await grid.refreshGrid();
+        }
+      },
+      text: "Refresh"
     }
   ];
 }

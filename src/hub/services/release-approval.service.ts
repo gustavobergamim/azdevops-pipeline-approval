@@ -37,8 +37,18 @@ export class ReleaseApprovalService {
         await client.updateReleaseApproval(approval, project.name, approval.id);
     }
 
+    async approveAll(approvals: IReleaseApproval[], comment: string): Promise<void> {
+        await approvals.forEach(async (approval: IReleaseApproval, index: number) => 
+            await this.approve(approval, comment));
+    }
+
     async approve(approval: IReleaseApproval, comment: string): Promise<void> {
         await this.changeStatus(approval, ApprovalStatus.Approved, comment);
+    }
+
+    async rejectAll(approvals: IReleaseApproval[], comment: string): Promise<void> {
+        await approvals.forEach(async (approval: IReleaseApproval, index: number) => 
+            await this.reject(approval, comment));
     }
 
     async reject(approval: IReleaseApproval, comment: string): Promise<void> {
