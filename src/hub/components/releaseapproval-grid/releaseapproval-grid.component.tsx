@@ -7,10 +7,7 @@ import { IReleaseApproval } from "../../model/IReleaseApproval";
 import { ReleaseApprovalService } from "../../services/release-approval.service";
 import { ListSelection } from "azure-devops-ui/List";
 
-export interface IReleaseApprovalGridProps {
-    onSelectionChange?: (selectedIndexes: number[]) => void;
-}
-export default class ReleaseApprovalGrid extends React.Component<IReleaseApprovalGridProps> {
+export default class ReleaseApprovalGrid extends React.Component {
 
     _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
     _tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>([]);
