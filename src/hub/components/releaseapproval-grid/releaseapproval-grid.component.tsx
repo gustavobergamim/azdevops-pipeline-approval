@@ -5,13 +5,18 @@ import { ButtonGroup } from "azure-devops-ui/ButtonGroup";
 import { Button } from "azure-devops-ui/Button";
 import { IReleaseApproval } from "../../model/IReleaseApproval";
 import { ReleaseApprovalService } from "../../services/release-approval.service";
+import { ListSelection } from "azure-devops-ui/List";
 
-export default class ReleaseApprovalGrid extends React.Component {
+export interface IReleaseApprovalGridProps {
+    onSelectionChange?: (selectedIndexes: number[]) => void;
+}
+export default class ReleaseApprovalGrid extends React.Component<IReleaseApprovalGridProps> {
 
     _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
-    private tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>([]);
+    _tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>([]);
+    selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
 
-    private configureGridColumns(): ITableColumn<{}>[] {
+    _configureGridColumns(): ITableColumn<{}>[] {
         return [
             new ColumnSelect() as ITableColumn<{}>,
             {
@@ -46,12 +51,13 @@ export default class ReleaseApprovalGrid extends React.Component {
     };
 
     public render(): JSX.Element {
-        this.loadData();
+        this._loadData();
         return (
             <div className="flex-grow">
                 <div>
-                    <Table columns={this.configureGridColumns()}
-                        itemProvider={this.tableRowData} />
+                    <Table columns={this._configureGridColumns()}
+                        itemProvider={this._tableRowData}
+                        selection={this.selection} />
                 </div>
             </div>
         );
@@ -85,9 +91,17 @@ export default class ReleaseApprovalGrid extends React.Component {
         );
     }
 
-    private async loadData(): Promise<void> {
+    async _loadData(): Promise<void> {
         const approvals = await this._releaseService.listAll();
-        this.tableRowData.removeAll();
-        this.tableRowData.push(...approvals);
+        this._tableRowData.removeAll();
+        this._tableRowData.push(...approvals);
+    }
+
+    async approveAll(): Promise<void> {
+        alert("Approve All");
+    }
+
+    async rejectAll(): Promise<void> {
+        alert("Reject All");
     }
 }
