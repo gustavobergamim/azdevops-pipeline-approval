@@ -1,0 +1,25 @@
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '12.x'
+  displayName: 'Install Node.js'
+
+- script: npm install
+  displayName: 'Resolving dependencies'
+
+- script: npm run package
+  displayName: 'Building and packing extension'
+
+- task: CopyFiles@2
+  displayName: Copy build files
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)/out
+    contents: |
+      **/*.vsix
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publishing artifacts'
