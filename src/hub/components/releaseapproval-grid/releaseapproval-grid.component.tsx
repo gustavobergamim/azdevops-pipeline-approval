@@ -24,7 +24,9 @@ export default class ReleaseApprovalGrid extends React.Component {
     static EVENT_REJECT = "reject";
 
     _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
-    _tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>([]);
+    _tableRowShimmer = new Array(5).fill(new ObservableValue<IReleaseApproval | undefined>(undefined));
+    _tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>(this._tableRowShimmer);
+
     selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
 
     _isDialogOpen: ObservableValue<boolean> = new ObservableValue<boolean>(false);
@@ -79,10 +81,11 @@ export default class ReleaseApprovalGrid extends React.Component {
             this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
         };
 
-        const onConfirmDialog = () => {
+        const onConfirmDialog = async () => {
             this._isDialogOpen.value = false;
-            this._releaseService.approveAll(this._selectedReleases.value, "");
+            await this._releaseService.approveAll(this._selectedReleases.value, "");
             this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
+            setTimeout(() => this.refreshGrid(), 1000);
         }
 
         this._loadData();
@@ -158,6 +161,8 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     async _loadData(): Promise<void> {
+        this._tableRowData.removeAll();
+        this._tableRowData.push(...this._tableRowShimmer);
         const approvals = await this._releaseService.listAll();
         this._tableRowData.removeAll();
         this._tableRowData.push(...approvals);
