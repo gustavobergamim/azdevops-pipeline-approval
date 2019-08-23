@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "version": "0.0.1",
   "name": "Azure Pipelines Approval",
-  "description": "A short description of my extension",
+  "description": "A simple way for view and approve releases",
   "publisher": "gustavobergamim",
   "demands": [
     "api-version/5.1"
