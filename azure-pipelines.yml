@@ -4,6 +4,10 @@ pool:
   vmImage: 'Ubuntu 16.04'
 
 steps:
+
+- task: gittools.gitversion.gitversion-task.GitVersion@5
+  displayName: GitVersion
+
 - task: NodeTool@0
   inputs:
     versionSpec: '12.x'
