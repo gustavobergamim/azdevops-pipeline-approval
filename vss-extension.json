@@ -4,13 +4,17 @@
   "name": "Azure Pipelines Approval",
   "description": "A short description of my extension",
   "publisher": "gustavobergamim",
-  "demands": ["api-version/5.1"],
-  "categories": ["Azure Pipelines"],
+  "demands": [
+    "api-version/5.1"
+  ],
+  "categories": [
+    "Azure Pipelines"
+  ],
   "scopes": [
     "vso.agentpools",
     "vso.build",
     "vso.release_manage"
-],
+  ],
   "targets": [
     {
       "id": "Microsoft.VisualStudio.Services"
@@ -18,7 +22,10 @@
   ],
   "content": {
     "details": {
-      "path": "README.md"
+      "path": "MarketPlace.md"
+    },
+    "license": {
+      "path": "license.txt"
     }
   },
   "icons": {
@@ -39,7 +46,9 @@
       "id": "pipeline-approval-hub-group",
       "type": "ms.vss-web.hub-group",
       "description": "Azure Pipelines Approval Hub Group",
-      "targets": ["ms.vss-build-web.build-release-hub-group"],
+      "targets": [
+        "ms.vss-build-web.build-release-hub-group"
+      ],
       "properties": {
         "name": "Approve Releases",
         "icon": {
@@ -51,7 +60,9 @@
     {
       "id": "default-hub",
       "type": "ms.vss-web.hub",
-      "targets": [".pipeline-approval-hub-group"],
+      "targets": [
+        ".pipeline-approval-hub-group"
+      ],
       "properties": {
         "uri": "dist/hub/hub.html"
       }
