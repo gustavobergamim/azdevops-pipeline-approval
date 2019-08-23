@@ -1,3 +1,5 @@
+name: $(GitVersion.MajorMinorPatch)
+
 trigger: none
 
 pool:
