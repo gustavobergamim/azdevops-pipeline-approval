@@ -31,6 +31,21 @@
   "icons": {
     "default": "img/server_accept_black.png"
   },
+  "links": {
+    "repository": {
+      "uri": "https://github.com/gustavobergamim/azdevops-pipeline-approval"
+    },
+    "issues": {
+      "uri": "https://github.com/gustavobergamim/azdevops-pipeline-approval/issues"
+    },
+    "support": {
+      "uri": "https://github.com/gustavobergamim/azdevops-pipeline-approval"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/gustavobergamim/azdevops-pipeline-approval"
+  },
   "files": [
     {
       "path": "dist",
