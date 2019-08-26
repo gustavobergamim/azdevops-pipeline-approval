@@ -1,6 +1,29 @@
 # Azure Pipelines Approval
 
-A short description of my extension
+This extension allows you to easily view releases that are pending approval for your user, allowing you to approve them directly from a simple grid view. You can approve them one by one or in batch.
+
+
+## Pipeline
+
+[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/pipeline-approval%20CI?branchName=master)](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=18&branchName=master)
+
+[![Deployment Status](https://vsrm.dev.azure.com/gustavobergamim/_apis/public/Release/badge/f31d13e6-01cf-43e1-9052-55751776b3ea/2/4)](https://vsrm.dev.azure.com/gustavobergamim/_apis/public/Release/badge/f31d13e6-01cf-43e1-9052-55751776b3ea/2/4)
+
+
+## Contributors
+
+Special thanks to Vinicius Moura (Microsoft MVP) for always helping with Azure DevOps related questions and ideas.
+
+
+## Contribute
+
+Contributions to **Azure Pipelines Approval** are welcome. Please fork this repo.
+
+- Submit bugs and help us verify fixes.
+- Submit pull requests for bug fixes and features and discuss existing proposals.
+
+
+# Development Instructions
 
 ## Running this project
 
@@ -16,17 +39,17 @@ Follow these steps to run a dev version of this project that supports hot reload
 
    > The `[token]` here is an Azure DevOps PAT (personal access token) with the **Marketplace (Publish)** scope and access set to **All accessible organizations**. For more information, see [Authenticate access with personal access tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate).
 
-1. Share the published extension with your Azure DevOps organization and install it.
+2. Share the published extension with your Azure DevOps organization and install it.
 
-1. Start the webpack-dev-server with:
+3. Start the webpack-dev-server with:
 
    ```shell
    npm run start:dev
    ```
 
-1. Go to `localhost:3000` in your browser. You should get an untrusted certificate error page. Select **Advanced** and then select **Accept the Risk and Continue**.
+4. Go to `localhost:3000` in your browser. You should get an untrusted certificate error page. Select **Advanced** and then select **Accept the Risk and Continue**.
 
-1. Navigate to the extension in Azure DevOps. Any changes to the source code will cause webpack to recompile and reload the extension automatically.
+5. Navigate to the extension in Azure DevOps. Any changes to the source code will cause webpack to recompile and reload the extension automatically.
 
    > Although most code changes will be reflected immediately, you may still need to occasionally update your extension in the marketplace. The dev extension loads all its resources from the webpack-dev-server, but the manifest itself is being loaded from the published code. Therefore, any changes to the manifest file will not be properly reflected in Azure DevOps until the extension has been republished.
 
