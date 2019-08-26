@@ -2,7 +2,7 @@ name: $(GitVersion.MajorMinorPatch)
 trigger: none
 
 variables:
-  agentPool: 'Ubuntu 16.04'
+  agentPool: 'Hosted Ubuntu 1604'
 
 stages:
 - stage: ExtensionBuild
