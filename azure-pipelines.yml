@@ -35,6 +35,7 @@ stages:
   jobs:
   - job: Publish
     pool: $(agentPool))
+    environment: 'Visual Studio Marketplace'
     steps:
     - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@2
       displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.6.x'
