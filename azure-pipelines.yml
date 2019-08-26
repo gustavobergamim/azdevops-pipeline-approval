@@ -1,15 +1,13 @@
 name: $(GitVersion.MajorMinorPatch)
 trigger: none
 
-variables:
-  agentPool: 'Hosted Ubuntu 1604'
-
 stages:
 - stage: ExtensionBuild
   displayName: 'Build and pack extension'
   jobs:
   - job: BuildAndPack
-    pool: $(agentPool)
+    pool:
+      vmImage: 'ubuntu-16.04'
     steps:
     - task: gittools.gitversion.gitversion-task.GitVersion@5
       displayName: GitVersion
@@ -34,7 +32,8 @@ stages:
   displayName: 'Publish extension to Visual Studio Marketplace'
   jobs:
   - deployment: Publish
-    pool: $(agentPool))
+    pool:
+      vmImage: 'ubuntu-16.04'
     environment: 'Visual Studio Marketplace'
     strategy:
       runOnce:
