@@ -1,33 +1,50 @@
 name: $(GitVersion.MajorMinorPatch)
-
 trigger: none
 
-pool:
-  vmImage: 'Ubuntu 16.04'
+variables:
+  agentPool: 'Ubuntu 16.04'
 
-steps:
-
-- task: gittools.gitversion.gitversion-task.GitVersion@5
-  displayName: GitVersion
-
-- task: NodeTool@0
-  inputs:
-    versionSpec: '12.x'
-  displayName: 'Install Node.js'
-
-- script: npm install
-  displayName: 'Resolving dependencies'
-
-- script: npm run package
-  displayName: 'Building and packing extension'
-
-- task: CopyFiles@2
-  displayName: Copy build files
-  inputs:
-    sourceFolder: $(Build.SourcesDirectory)/out
-    contents: |
-      **/*.vsix
-    targetFolder: '$(Build.ArtifactStagingDirectory)'
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publishing artifacts'
+stages:
+- stage: ExtensionBuild
+  displayName: 'Build and pack extension'
+  jobs:
+  - job: BuildAndPack
+    pool: $(agentPool)
+    steps:
+    - task: gittools.gitversion.gitversion-task.GitVersion@5
+      displayName: GitVersion
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '12.x'
+      displayName: 'Install Node.js'
+    - script: npm install
+      displayName: 'Resolving dependencies'
+    - script: npm run package
+      displayName: 'Building and packing extension'
+    - task: CopyFiles@2
+      displayName: Copy build files
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)/out
+        contents: |
+          **/*.vsix
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publishing artifacts'
+- stage: ExtensionPublish
+  displayName: 'Publish extension to Visual Studio Marketplace'
+  jobs:
+  - job: Publish
+    pool: $(agentPool))
+    steps:
+    - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@2
+      displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.6.x'
+    - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-extension-build-task.PublishAzureDevOpsExtension@2
+      displayName: 'Publish Extension'
+      inputs:
+        connectedServiceName: 'VS MarketPlace'
+        fileType: vsix
+        vsixFile: '$(System.DefaultWorkingDirectory)/pipeline-approval CI/drop/gustavobergamim.pipeline-approval-*.vsix'
+        extensionVersion: '$(Build.BuildNumber)'
+        extensionVisibility: privatepreview
+        extensionPricing: free
+        shareWith: 'gustavobergamim'
