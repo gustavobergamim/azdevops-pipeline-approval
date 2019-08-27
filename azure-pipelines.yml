@@ -48,6 +48,5 @@ stages:
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
               extensionVersion: '$(Build.BuildNumber)'
-              extensionVisibility: privatepreview
               extensionPricing: free
               shareWith: 'gustavobergamim'
