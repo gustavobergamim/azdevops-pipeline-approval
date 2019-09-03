@@ -1,5 +1,7 @@
 {
   "id": "pipeline-approval-dev",
+  "version": "0.0.5",
   "public": false,
-  "baseUri": "https://localhost:3000"
+  "baseUri": "https://localhost:3000",
+  "name": "Azure Pipelines Approval [DEV]"
 }
