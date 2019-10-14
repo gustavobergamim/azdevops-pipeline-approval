@@ -84,7 +84,7 @@ export default class ReleaseApprovalGrid extends React.Component {
 
         const onConfirmDialog = async () => {
             this._isDialogOpen.value = false;
-            if (this._dialogActionApprove) {
+            if (this._dialogActionApprove.value) {
                 await this._releaseService.approveAll(this._selectedReleases.value, "");
             } else {
                 await this._releaseService.rejectAll(this._selectedReleases.value, "");
