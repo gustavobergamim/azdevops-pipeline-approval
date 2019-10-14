@@ -47,4 +47,4 @@ stages:
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
-              extensionVersion: '0.1.2'
+              extensionVersion: '$(Build.BuildNumber)'
