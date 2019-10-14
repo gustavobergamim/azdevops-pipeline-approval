@@ -41,27 +41,23 @@ export default class ReleaseApprovalGrid extends React.Component {
             {
                 id: "definition",
                 name: "Definition",
-                readonly: true,
                 renderCell: renderSimpleCell,
                 width: -30
             },
             {
                 id: "number",
                 name: "Identifier",
-                readonly: true,
                 renderCell: renderSimpleCell,
                 width: -20
             },
             {
                 id: "environment",
                 name: "Stage",
-                readonly: true,
                 renderCell: renderSimpleCell,
                 width: -20
             },
             {
                 id: "actions",
-                readonly: true,
                 renderCell: this._renderStage,
                 width: -30
             }
@@ -100,8 +96,7 @@ export default class ReleaseApprovalGrid extends React.Component {
                 <div>
                     <Table columns={this._configureGridColumns()}
                         itemProvider={this._tableRowData}
-                        selection={this.selection}
-                        selectRowOnClick={false} />
+                        selection={this.selection} />
                     <Observer isDialogOpen={this._isDialogOpen}>
                         {(props: { isDialogOpen: boolean }) => {
                             return props.isDialogOpen ? (
