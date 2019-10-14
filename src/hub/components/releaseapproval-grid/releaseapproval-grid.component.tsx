@@ -32,6 +32,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     _isDialogOpen: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     _dialogTitleAction: ObservableValue<string> = new ObservableValue<string>("");
     _dialogBodyAction: ObservableValue<string> = new ObservableValue<string>("");
+    _dialogActionApprove: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     _selectedReleases: ArrayItemProvider<IReleaseApproval> = new ArrayItemProvider<IReleaseApproval>([]);
 
     _configureGridColumns(): ITableColumn<{}>[] {
@@ -83,7 +84,11 @@ export default class ReleaseApprovalGrid extends React.Component {
 
         const onConfirmDialog = async () => {
             this._isDialogOpen.value = false;
-            await this._releaseService.approveAll(this._selectedReleases.value, "");
+            if (this._dialogActionApprove) {
+                await this._releaseService.approveAll(this._selectedReleases.value, "");
+            } else {
+                await this._releaseService.rejectAll(this._selectedReleases.value, "");
+            }
             this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
             setTimeout(() => this.refreshGrid(), 1000);
         }
@@ -189,6 +194,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     _approve(): void {
         this._dialogTitleAction.value = "approval";
         this._dialogBodyAction.value = "approve";
+        this._dialogActionApprove = true;
         this._isDialogOpen.value = true;
     }
 
@@ -209,6 +215,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     _reject(): void {
         this._dialogTitleAction.value = "rejection";
         this._dialogBodyAction.value = "reject";
+        this._dialogActionApprove = false;
         this._isDialogOpen.value = true;
     }
 
