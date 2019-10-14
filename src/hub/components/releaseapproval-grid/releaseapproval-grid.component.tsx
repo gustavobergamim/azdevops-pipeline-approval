@@ -194,7 +194,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     _approve(): void {
         this._dialogTitleAction.value = "approval";
         this._dialogBodyAction.value = "approve";
-        this._dialogActionApprove = true;
+        this._dialogActionApprove.value = true;
         this._isDialogOpen.value = true;
     }
 
@@ -215,7 +215,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     _reject(): void {
         this._dialogTitleAction.value = "rejection";
         this._dialogBodyAction.value = "reject";
-        this._dialogActionApprove = false;
+        this._dialogActionApprove.value = false;
         this._isDialogOpen.value = true;
     }
 
