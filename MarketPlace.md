@@ -25,9 +25,7 @@ Here are some features we're working on. Feel free to suggest any other feature.
 
 ## Pipeline
 
-[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/pipeline-approval%20CI?branchName=master)](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=18&branchName=master)
-
-[![Deployment Status](https://vsrm.dev.azure.com/gustavobergamim/_apis/public/Release/badge/f31d13e6-01cf-43e1-9052-55751776b3ea/2/4)](https://vsrm.dev.azure.com/gustavobergamim/_apis/public/Release/badge/f31d13e6-01cf-43e1-9052-55751776b3ea/2/4)
+[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master)](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)
 
 
 ## Contributors
