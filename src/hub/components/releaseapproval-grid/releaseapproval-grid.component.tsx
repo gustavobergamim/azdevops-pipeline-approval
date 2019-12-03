@@ -17,6 +17,41 @@ import { PillGroup } from "azure-devops-ui/PillGroup";
 import { IColor } from "azure-devops-ui/Utilities/Color";
 import Events = require('events');
 
+import { Card } from "azure-devops-ui/Card";
+import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'office-ui-fabric-react';
+import { Dropdown } from "azure-devops-ui/Dropdown";
+import { IListBoxItem } from "azure-devops-ui/ListBox";
+
+
+const DayPickerStrings: IDatePickerStrings = {
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+
+    shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+
+    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+
+    shortDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+
+    goToToday: 'Go to today',
+    prevMonthAriaLabel: 'Go to previous month',
+    nextMonthAriaLabel: 'Go to next month',
+    prevYearAriaLabel: 'Go to previous year',
+    nextYearAriaLabel: 'Go to next year',
+    closeButtonAriaLabel: 'Close date picker'
+};
+
+const controlClass = mergeStyleSets({
+    control: {
+        margin: '0 0 15px 0',
+        maxWidth: '300px'
+    }
+});
+
+export interface IDatePickerBasicExampleState {
+    firstDayOfWeek?: DayOfWeek;
+}
+
+
 export default class ReleaseApprovalGrid extends React.Component {
 
     static events = new Events.EventEmitter();
@@ -34,6 +69,8 @@ export default class ReleaseApprovalGrid extends React.Component {
     _dialogBodyAction: ObservableValue<string> = new ObservableValue<string>("");
     _dialogActionApprove: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     _selectedReleases: ArrayItemProvider<IReleaseApproval> = new ArrayItemProvider<IReleaseApproval>([]);
+
+    _deferredDeploymentCheck = new ObservableValue<boolean>(false);
 
     _configureGridColumns(): ITableColumn<{}>[] {
         return [
@@ -121,6 +158,32 @@ export default class ReleaseApprovalGrid extends React.Component {
                                         renderRow={this._renderListRow}
                                         width="100%"
                                     />
+                                    <Card
+                                        className="flex-grow"
+                                        collapsible={true}
+                                        collapsed={this._deferredDeploymentCheck}
+                                        onCollapseClick={() => this._deferredDeploymentCheck.value = !this._deferredDeploymentCheck.value}
+                                        titleProps={{ text: "Defer deployment for later" }}
+                                    >
+                                        <DatePicker
+                                            firstDayOfWeek={DayOfWeek.Sunday}
+                                            strings={DayPickerStrings}
+                                            placeholder="Date" />
+                                        <Dropdown
+                                            placeholder="Hour"
+                                            items={[
+                                                { id: "0", text: "00h" },
+                                                { id: "1", text: "01h" }
+                                            ]} />
+                                        <Dropdown
+                                            placeholder="Minute"
+                                            items={[
+                                                { id: "0", text: "00m" },
+                                                { id: "1", text: "01m" }
+                                            ]} />
+                                        
+                                        (TIMEZONE)
+                                    </Card>
                                 </Dialog>
                             ) : null;
                         }}
