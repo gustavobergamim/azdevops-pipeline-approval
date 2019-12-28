@@ -20,7 +20,11 @@ import Events = require('events');
 import { Card } from "azure-devops-ui/Card";
 import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'office-ui-fabric-react';
 import { Dropdown } from "azure-devops-ui/Dropdown";
+import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
+import { Icon, IconSize } from "azure-devops-ui/Icon";
+import { MessageCard, MessageCardSeverity } from "azure-devops-ui/MessageCard";
+import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 
 
 const DayPickerStrings: IDatePickerStrings = {
@@ -70,7 +74,14 @@ export default class ReleaseApprovalGrid extends React.Component {
     _dialogActionApprove: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     _selectedReleases: ArrayItemProvider<IReleaseApproval> = new ArrayItemProvider<IReleaseApproval>([]);
 
-    _deferredDeploymentCheck = new ObservableValue<boolean>(false);
+    _deferredDeploymentCheck = new ObservableValue<boolean>(true);
+    _deferredDeploymentDateDefault: Date = new Date();
+    _deferredDeploymentDate: Date = new Date();
+    _deferredDeploymentHour: number = 0;
+    _deferredDeploymentMinute: number = 0;
+    _deferredDeploymentHourSelection = new DropdownSelection();
+    _deferredDeploymentMinuteSelection = new DropdownSelection();
+    _deferredDeploymentInvalidDate = new ObservableValue<boolean>(false);
 
     _configureGridColumns(): ITableColumn<{}>[] {
         return [
@@ -100,6 +111,14 @@ export default class ReleaseApprovalGrid extends React.Component {
             }
         ]
     };
+
+    getDefferedDeploymentListBoxItems(quantity: number, suffix: string): IListBoxItem<{}>[] {
+        let items = [];
+        for (let index = 0; index < quantity; index++) {
+            items.push({ id: index.toString(), text: `${index.toString().padStart(2, '0')}${suffix}` });
+        }
+        return items;
+    }
 
     constructor(props: {}) {
         super(props);
@@ -152,12 +171,14 @@ export default class ReleaseApprovalGrid extends React.Component {
                                     ]}
                                     onDismiss={onDismissDialog}
                                 >
-                                    Confirm that you want to {this._dialogBodyAction.value} the following releases:
-                                    <ScrollableList
-                                        itemProvider={this._selectedReleases}
-                                        renderRow={this._renderListRow}
-                                        width="100%"
-                                    />
+                                    <Card
+                                        titleProps={{ text: `Confirm that you want to ${this._dialogBodyAction.value} the following releases:` }}>
+                                        <ScrollableList
+                                            itemProvider={this._selectedReleases}
+                                            renderRow={this._renderListRow}
+                                            width="100%"
+                                        />
+                                    </Card>
                                     <Card
                                         className="flex-grow"
                                         collapsible={true}
@@ -165,24 +186,39 @@ export default class ReleaseApprovalGrid extends React.Component {
                                         onCollapseClick={() => this._deferredDeploymentCheck.value = !this._deferredDeploymentCheck.value}
                                         titleProps={{ text: "Defer deployment for later" }}
                                     >
-                                        <DatePicker
-                                            firstDayOfWeek={DayOfWeek.Sunday}
-                                            strings={DayPickerStrings}
-                                            placeholder="Date" />
-                                        <Dropdown
-                                            placeholder="Hour"
-                                            items={[
-                                                { id: "0", text: "00h" },
-                                                { id: "1", text: "01h" }
-                                            ]} />
-                                        <Dropdown
-                                            placeholder="Minute"
-                                            items={[
-                                                { id: "0", text: "00m" },
-                                                { id: "1", text: "01m" }
-                                            ]} />
-                                        
-                                        (TIMEZONE)
+                                        <div>
+                                            <div className="flex-row">
+                                                <DatePicker
+                                                    firstDayOfWeek={DayOfWeek.Sunday}
+                                                    strings={DayPickerStrings}
+                                                    placeholder="Date"
+                                                    minDate={new Date()}
+                                                    value={this._deferredDeploymentDateDefault}
+                                                    onSelectDate={this.onSelectDeferredDeploymentDate} />
+                                                <Dropdown
+                                                    placeholder="Hour"
+                                                    items={this.getDefferedDeploymentListBoxItems(24, 'h')}
+                                                    showFilterBox={false}
+                                                    selection={this._deferredDeploymentHourSelection}
+                                                    onSelect={this.onSelectDeferredDeploymentHour} />
+                                                <Dropdown
+                                                    placeholder="Minute"
+                                                    items={this.getDefferedDeploymentListBoxItems(60, 'm')}
+                                                    showFilterBox={false}
+                                                    selection={this._deferredDeploymentMinuteSelection}
+                                                    onSelect={this.onSelectDeferredDeploymentMinute} />
+                                                {/* (TIMEZONE) */}
+                                            </div>
+                                            <ConditionalChildren renderChildren={this._deferredDeploymentInvalidDate}>
+                                                <div className="flex-row" style={{ marginTop: "10px" }}>
+                                                    <MessageCard
+                                                        className="flex-self-stretch"
+                                                        severity={MessageCardSeverity.Error} >
+                                                        The specified date for deferring the deployment is in the past. The date should be in the future.
+                                                    </MessageCard>
+                                                </div>
+                                            </ConditionalChildren>
+                                        </div>
                                     </Card>
                                 </Dialog>
                             ) : null;
@@ -253,6 +289,14 @@ export default class ReleaseApprovalGrid extends React.Component {
         this._dialogTitleAction.value = "approval";
         this._dialogBodyAction.value = "approve";
         this._dialogActionApprove.value = true;
+
+        this._deferredDeploymentCheck.value = true;
+        let selectedDate = new Date();
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        this._deferredDeploymentDateDefault = selectedDate;
+        this._deferredDeploymentHourSelection.select(0);
+        this._deferredDeploymentMinuteSelection.select(0);
+
         this._isDialogOpen.value = true;
     }
 
@@ -274,6 +318,14 @@ export default class ReleaseApprovalGrid extends React.Component {
         this._dialogTitleAction.value = "rejection";
         this._dialogBodyAction.value = "reject";
         this._dialogActionApprove.value = false;
+
+        this._deferredDeploymentCheck.value = true;
+        let selectedDate = new Date();
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        this._deferredDeploymentDateDefault = selectedDate;
+        this._deferredDeploymentHourSelection.select(0);
+        this._deferredDeploymentMinuteSelection.select(0);
+
         this._isDialogOpen.value = true;
     }
 
@@ -312,6 +364,7 @@ export default class ReleaseApprovalGrid extends React.Component {
         return (
             <ListItem key={key || "list-item" + index} index={index} details={details}>
                 <div className="list-example-row flex-row h-scroll-hidden">
+                    <Icon iconName="Rocket" size={IconSize.medium} />
                     <div
                         style={{ marginLeft: "10px", padding: "10px 0px" }}
                         className="flex-column h-scroll-hidden"
@@ -331,4 +384,26 @@ export default class ReleaseApprovalGrid extends React.Component {
         );
     };
 
+    private onSelectDeferredDeploymentDate = (date: Date | null | undefined): void => {
+        if (!date) return;
+        this._deferredDeploymentDate = date;
+        this._validateDeferredDeploymentDate();
+    }
+
+    private onSelectDeferredDeploymentHour = (event: React.SyntheticEvent<HTMLElement>, item: IListBoxItem<{}>) => {
+        this._deferredDeploymentHour = +item.id;
+        this._validateDeferredDeploymentDate();
+    }
+
+    private onSelectDeferredDeploymentMinute = (event: React.SyntheticEvent<HTMLElement>, item: IListBoxItem<{}>) => {
+        this._deferredDeploymentMinute = +item.id;
+        this._validateDeferredDeploymentDate();
+    }
+
+    _validateDeferredDeploymentDate(){
+        let selectedDate = this._deferredDeploymentDate;
+        selectedDate.setHours(this._deferredDeploymentHour);
+        selectedDate.setMinutes(this._deferredDeploymentMinute);
+        this._deferredDeploymentInvalidDate.value = new Date() >= selectedDate;
+    }
 }
