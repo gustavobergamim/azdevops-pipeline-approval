@@ -20,9 +20,11 @@
     }
   },
   "dependencies": {
+    "@uifabric/azure-themes": "^7.0.10",
     "azure-devops-extension-api": "1.153.2",
     "azure-devops-extension-sdk": "^2.0.7",
-    "azure-devops-ui": "^1.152.2",
+    "azure-devops-ui": "^1.160.3",
+    "office-ui-fabric-react": "^7.68.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },
