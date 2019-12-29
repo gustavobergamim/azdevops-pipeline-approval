@@ -123,9 +123,9 @@ export default class ReleaseApprovalGrid extends React.Component {
     constructor(props: {}) {
         super(props);
         ReleaseApprovalGrid.events.on(ReleaseApprovalGrid.EVENT_APPROVE,
-            async (approval: IReleaseApproval) => await this._approveSingle(approval));
+            async (approval: IReleaseApproval) => this._approveSingle(approval));
         ReleaseApprovalGrid.events.on(ReleaseApprovalGrid.EVENT_REJECT,
-            async (approval: IReleaseApproval) => await this._rejectSingle(approval));
+            async (approval: IReleaseApproval) => this._rejectSingle(approval));
     }
 
     render(): JSX.Element {
@@ -135,9 +135,15 @@ export default class ReleaseApprovalGrid extends React.Component {
         };
 
         const onConfirmDialog = async () => {
+            let deferredDate: Date | null = null;
+            if (!this._deferredDeploymentCheck.value) {
+                this._validateDeferredDeploymentDate();
+                if (this._deferredDeploymentInvalidDate.value) return;
+                deferredDate = this._deferredDeploymentDate;
+            }
             this._isDialogOpen.value = false;
             if (this._dialogActionApprove.value) {
-                await this._releaseService.approveAll(this._selectedReleases.value, "");
+                await this._releaseService.approveAll(this._selectedReleases.value, "", deferredDate);
             } else {
                 await this._releaseService.rejectAll(this._selectedReleases.value, "");
             }
@@ -179,47 +185,48 @@ export default class ReleaseApprovalGrid extends React.Component {
                                             width="100%"
                                         />
                                     </Card>
-                                    <Card
-                                        className="flex-grow"
-                                        collapsible={true}
-                                        collapsed={this._deferredDeploymentCheck}
-                                        onCollapseClick={() => this._deferredDeploymentCheck.value = !this._deferredDeploymentCheck.value}
-                                        titleProps={{ text: "Defer deployment for later" }}
-                                    >
-                                        <div>
-                                            <div className="flex-row">
-                                                <DatePicker
-                                                    firstDayOfWeek={DayOfWeek.Sunday}
-                                                    strings={DayPickerStrings}
-                                                    placeholder="Date"
-                                                    minDate={new Date()}
-                                                    value={this._deferredDeploymentDateDefault}
-                                                    onSelectDate={this.onSelectDeferredDeploymentDate} />
-                                                <Dropdown
-                                                    placeholder="Hour"
-                                                    items={this.getDefferedDeploymentListBoxItems(24, 'h')}
-                                                    showFilterBox={false}
-                                                    selection={this._deferredDeploymentHourSelection}
-                                                    onSelect={this.onSelectDeferredDeploymentHour} />
-                                                <Dropdown
-                                                    placeholder="Minute"
-                                                    items={this.getDefferedDeploymentListBoxItems(60, 'm')}
-                                                    showFilterBox={false}
-                                                    selection={this._deferredDeploymentMinuteSelection}
-                                                    onSelect={this.onSelectDeferredDeploymentMinute} />
-                                                {/* (TIMEZONE) */}
-                                            </div>
-                                            <ConditionalChildren renderChildren={this._deferredDeploymentInvalidDate}>
-                                                <div className="flex-row" style={{ marginTop: "10px" }}>
-                                                    <MessageCard
-                                                        className="flex-self-stretch"
-                                                        severity={MessageCardSeverity.Error} >
-                                                        The specified date for deferring the deployment is in the past. The date should be in the future.
-                                                    </MessageCard>
+                                    <ConditionalChildren renderChildren={this._dialogActionApprove.value}>
+                                        <Card
+                                            className="flex-grow"
+                                            collapsible={true}
+                                            collapsed={this._deferredDeploymentCheck}
+                                            onCollapseClick={() => this._deferredDeploymentCheck.value = !this._deferredDeploymentCheck.value}
+                                            titleProps={{ text: "Defer deployment for later" }} >
+                                            <div>
+                                                <div className="flex-row">
+                                                    <DatePicker
+                                                        firstDayOfWeek={DayOfWeek.Sunday}
+                                                        strings={DayPickerStrings}
+                                                        placeholder="Date"
+                                                        minDate={new Date()}
+                                                        value={this._deferredDeploymentDateDefault}
+                                                        onSelectDate={this.onSelectDeferredDeploymentDate} />
+                                                    <Dropdown
+                                                        placeholder="Hour"
+                                                        items={this.getDefferedDeploymentListBoxItems(24, 'h')}
+                                                        showFilterBox={false}
+                                                        selection={this._deferredDeploymentHourSelection}
+                                                        onSelect={this.onSelectDeferredDeploymentHour} />
+                                                    <Dropdown
+                                                        placeholder="Minute"
+                                                        items={this.getDefferedDeploymentListBoxItems(60, 'm')}
+                                                        showFilterBox={false}
+                                                        selection={this._deferredDeploymentMinuteSelection}
+                                                        onSelect={this.onSelectDeferredDeploymentMinute} />
+                                                    {/* (TIMEZONE) */}
                                                 </div>
-                                            </ConditionalChildren>
-                                        </div>
-                                    </Card>
+                                                <ConditionalChildren renderChildren={this._deferredDeploymentInvalidDate}>
+                                                    <div className="flex-row" style={{ marginTop: "10px" }}>
+                                                        <MessageCard
+                                                            className="flex-self-stretch"
+                                                            severity={MessageCardSeverity.Error} >
+                                                            The specified date for deferring the deployment is in the past. The date should be in the future.
+                                                        </MessageCard>
+                                                    </div>
+                                                </ConditionalChildren>
+                                            </div>
+                                        </Card>
+                                    </ConditionalChildren>
                                 </Dialog>
                             ) : null;
                         }}
@@ -293,7 +300,7 @@ export default class ReleaseApprovalGrid extends React.Component {
         this._deferredDeploymentCheck.value = true;
         let selectedDate = new Date();
         selectedDate.setDate(selectedDate.getDate() + 1);
-        this._deferredDeploymentDateDefault = selectedDate;
+        this._deferredDeploymentDateDefault = this._deferredDeploymentDate = selectedDate;
         this._deferredDeploymentHourSelection.select(0);
         this._deferredDeploymentMinuteSelection.select(0);
 
@@ -322,7 +329,7 @@ export default class ReleaseApprovalGrid extends React.Component {
         this._deferredDeploymentCheck.value = true;
         let selectedDate = new Date();
         selectedDate.setDate(selectedDate.getDate() + 1);
-        this._deferredDeploymentDateDefault = selectedDate;
+        this._deferredDeploymentDateDefault = this._deferredDeploymentDate = selectedDate;
         this._deferredDeploymentHourSelection.select(0);
         this._deferredDeploymentMinuteSelection.select(0);
 
@@ -400,10 +407,9 @@ export default class ReleaseApprovalGrid extends React.Component {
         this._validateDeferredDeploymentDate();
     }
 
-    _validateDeferredDeploymentDate(){
-        let selectedDate = this._deferredDeploymentDate;
-        selectedDate.setHours(this._deferredDeploymentHour);
-        selectedDate.setMinutes(this._deferredDeploymentMinute);
-        this._deferredDeploymentInvalidDate.value = new Date() >= selectedDate;
+    _validateDeferredDeploymentDate() {
+        this._deferredDeploymentDate.setHours(this._deferredDeploymentHour);
+        this._deferredDeploymentDate.setMinutes(this._deferredDeploymentMinute);
+        this._deferredDeploymentInvalidDate.value = new Date() >= this._deferredDeploymentDate;
     }
 }
