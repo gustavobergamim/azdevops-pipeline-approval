@@ -18,13 +18,15 @@ import { IColor } from "azure-devops-ui/Utilities/Color";
 import Events = require('events');
 
 import { Card } from "azure-devops-ui/Card";
-import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'office-ui-fabric-react';
+import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets, Fabric, initializeIcons, Customizer } from 'office-ui-fabric-react';
+import { AzureCustomizationsLight, AzureCustomizationsDark } from '@uifabric/azure-themes';
 import { Dropdown } from "azure-devops-ui/Dropdown";
 import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { Icon, IconSize } from "azure-devops-ui/Icon";
 import { MessageCard, MessageCardSeverity } from "azure-devops-ui/MessageCard";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
+import { ContentSize } from "azure-devops-ui/Callout";
 
 
 const DayPickerStrings: IDatePickerStrings = {
@@ -126,6 +128,7 @@ export default class ReleaseApprovalGrid extends React.Component {
             async (approval: IReleaseApproval) => this._approveSingle(approval));
         ReleaseApprovalGrid.events.on(ReleaseApprovalGrid.EVENT_REJECT,
             async (approval: IReleaseApproval) => this._rejectSingle(approval));
+        initializeIcons();
     }
 
     render(): JSX.Element {
@@ -152,7 +155,6 @@ export default class ReleaseApprovalGrid extends React.Component {
         }
 
         this._loadData();
-
         return (
             <div className="flex-grow">
                 <div>
@@ -163,6 +165,7 @@ export default class ReleaseApprovalGrid extends React.Component {
                         {(props: { isDialogOpen: boolean }) => {
                             return props.isDialogOpen ? (
                                 <Dialog
+                                    contentSize={ContentSize.Medium}
                                     titleProps={{ text: `Release ${this._dialogTitleAction.value} confirmation` }}
                                     footerButtonProps={[
                                         {
@@ -175,8 +178,7 @@ export default class ReleaseApprovalGrid extends React.Component {
                                             primary: true
                                         }
                                     ]}
-                                    onDismiss={onDismissDialog}
-                                >
+                                    onDismiss={onDismissDialog}>
                                     <Card
                                         titleProps={{ text: `Confirm that you want to ${this._dialogBodyAction.value} the following releases:` }}>
                                         <ScrollableList
@@ -194,20 +196,27 @@ export default class ReleaseApprovalGrid extends React.Component {
                                             titleProps={{ text: "Defer deployment for later" }} >
                                             <div>
                                                 <div className="flex-row">
-                                                    <DatePicker
-                                                        firstDayOfWeek={DayOfWeek.Sunday}
-                                                        strings={DayPickerStrings}
-                                                        placeholder="Date"
-                                                        minDate={new Date()}
-                                                        value={this._deferredDeploymentDateDefault}
-                                                        onSelectDate={this.onSelectDeferredDeploymentDate} />
+                                                    <Customizer>
+                                                        <Fabric>
+                                                            <DatePicker
+                                                                className={controlClass.control}
+                                                                firstDayOfWeek={DayOfWeek.Sunday}
+                                                                strings={DayPickerStrings}
+                                                                placeholder="Date"
+                                                                minDate={new Date()}
+                                                                value={this._deferredDeploymentDateDefault}
+                                                                onSelectDate={this.onSelectDeferredDeploymentDate} />
+                                                        </Fabric>
+                                                    </Customizer>
                                                     <Dropdown
+                                                        className={controlClass.control}
                                                         placeholder="Hour"
                                                         items={this.getDefferedDeploymentListBoxItems(24, 'h')}
                                                         showFilterBox={false}
                                                         selection={this._deferredDeploymentHourSelection}
                                                         onSelect={this.onSelectDeferredDeploymentHour} />
                                                     <Dropdown
+                                                        className={controlClass.control}
                                                         placeholder="Minute"
                                                         items={this.getDefferedDeploymentListBoxItems(60, 'm')}
                                                         showFilterBox={false}
@@ -216,7 +225,7 @@ export default class ReleaseApprovalGrid extends React.Component {
                                                     {/* (TIMEZONE) */}
                                                 </div>
                                                 <ConditionalChildren renderChildren={this._deferredDeploymentInvalidDate}>
-                                                    <div className="flex-row" style={{ marginTop: "10px" }}>
+                                                    <div className="flex-row" style={{ marginBottom: "10px" }}>
                                                         <MessageCard
                                                             className="flex-self-stretch"
                                                             severity={MessageCardSeverity.Error} >
