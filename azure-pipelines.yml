@@ -3,7 +3,7 @@ trigger: none
 
 stages:
 - stage: ExtensionBuild
-  displayName: 'Build and pack extension'
+  displayName: 'Build and pack'
   jobs:
   - job: BuildAndPack
     pool:
@@ -28,13 +28,13 @@ stages:
         targetFolder: '$(Build.ArtifactStagingDirectory)'
     - task: PublishBuildArtifacts@1
       displayName: 'Publishing artifacts'
-- stage: ExtensionPublish
-  displayName: 'Publish extension to Visual Studio Marketplace'
+- stage: ExtensionPublishQA
+  displayName: 'QA Publish'
   jobs:
   - deployment: Publish
     pool:
       vmImage: 'ubuntu-16.04'
-    environment: 'Visual Studio Marketplace'
+    environment: QA
     strategy:
       runOnce:
         deploy:
@@ -48,3 +48,25 @@ stages:
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
               extensionVersion: '$(Build.BuildNumber)'
+              arguments: --manifest-globs vss-extension.json --overrides-file configs/qa.json
+- stage: ExtensionPublishProduction
+  displayName: 'Publish extension to Visual Studio Marketplace'
+  jobs:
+  - deployment: Publish
+    pool:
+      vmImage: 'ubuntu-16.04'
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@2
+            displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.6.x'
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-extension-build-task.PublishAzureDevOpsExtension@2
+            displayName: 'Publish Extension'
+            inputs:
+              connectedServiceName: 'VS MarketPlace'
+              fileType: vsix
+              vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
+              extensionVersion: '$(Build.BuildNumber)'
+              arguments: --manifest-globs vss-extension.json --overrides-file configs/release.json
