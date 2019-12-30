@@ -20,12 +20,28 @@ stages:
     - script: npm run package
       displayName: 'Building and packing extension'
     - task: CopyFiles@2
-      displayName: Copy build files
+      displayName: Copy vsix files
       inputs:
         sourceFolder: $(Build.SourcesDirectory)/out
         contents: |
           **/*.vsix
         targetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: CopyFiles@2
+      displayName: Copy manifest file
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)
+        contents: |
+          vss-extension.json
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+        flattenFolders: false
+    - task: CopyFiles@2
+      displayName: Copy config files
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)/configs
+        contents: |
+          **/*.json
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+        flattenFolders: false
     - task: PublishBuildArtifacts@1
       displayName: 'Publishing artifacts'
 - stage: ExtensionPublishQA
