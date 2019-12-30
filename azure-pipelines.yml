@@ -33,15 +33,13 @@ stages:
         contents: |
           vss-extension.json
         targetFolder: '$(Build.ArtifactStagingDirectory)'
-        flattenFolders: false
     - task: CopyFiles@2
       displayName: Copy config files
       inputs:
         sourceFolder: $(Build.SourcesDirectory)/configs
         contents: |
           **/*.json
-        targetFolder: '$(Build.ArtifactStagingDirectory)'
-        flattenFolders: false
+        targetFolder: '$(Build.ArtifactStagingDirectory)/configs'
     - task: PublishBuildArtifacts@1
       displayName: 'Publishing artifacts'
 - stage: ExtensionPublishQA
