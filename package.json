@@ -49,6 +49,7 @@
     "style-loader": "^0.23.1",
     "tfx-cli": "^0.7.5",
     "ts-loader": "^6.0.1",
+    "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typescript": "^3.4.5",
     "webpack": "^4.32.1",
     "webpack-cli": "^3.3.2",
