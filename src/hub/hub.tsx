@@ -6,7 +6,6 @@ import ReleaseApprovalGrid from "@src-root/hub/components/releaseapproval-grid.c
 import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
 import { ReleaseApprovalEvents, EventType } from "./model/ReleaseApprovalEvents";
 
-
 class Hub extends React.Component<{}> {
 
   _releaseGrid: React.RefObject<ReleaseApprovalGrid>;
@@ -23,11 +22,9 @@ class Hub extends React.Component<{}> {
           title={"Releases to Approve"}
           titleSize={TitleSize.Medium}
           titleIconProps={{ iconName: "Rocket" }}
-          commandBarItems={this._createCommandBarItems}
-        />
+          commandBarItems={this._createCommandBarItems} />
         <div className="page-content page-content-top">
-          <ReleaseApprovalGrid
-            ref={this._releaseGrid} />
+          <ReleaseApprovalGrid ref={this._releaseGrid} />
         </div>
       </Page>
     );
@@ -50,6 +47,7 @@ class Hub extends React.Component<{}> {
         iconName: "Cancel"
       },
       important: true,
+      className: "danger",
       onActivate: () => ReleaseApprovalEvents.fire(EventType.RejectAllReleases),
       text: "Reject All"
     },
