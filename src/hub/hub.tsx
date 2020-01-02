@@ -5,7 +5,6 @@ import { Page } from "azure-devops-ui/Page";
 import ReleaseApprovalGrid from "./components/releaseapproval-grid/releaseapproval-grid.component";
 import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
 
-
 class Hub extends React.Component<{}> {
 
   _releaseGrid: React.RefObject<ReleaseApprovalGrid>;
@@ -22,11 +21,9 @@ class Hub extends React.Component<{}> {
           title={"Releases to Approve"}
           titleSize={TitleSize.Medium}
           titleIconProps={{ iconName: "Rocket" }}
-          commandBarItems={this._createCommandBarItems}
-        />
+          commandBarItems={this._createCommandBarItems} />
         <div className="page-content page-content-top">
-          <ReleaseApprovalGrid
-            ref={this._releaseGrid} />
+          <ReleaseApprovalGrid ref={this._releaseGrid} />
         </div>
       </Page>
     );
@@ -39,6 +36,7 @@ class Hub extends React.Component<{}> {
         iconName: "CheckMark"
       },
       important: true,
+      className: "",
       onActivate: () => {
         const grid = this._releaseGrid.current as ReleaseApprovalGrid;
         if (grid != null) {
@@ -54,6 +52,7 @@ class Hub extends React.Component<{}> {
         iconName: "Cancel"
       },
       important: true,
+      className: "danger",
       onActivate: () => {
         const grid = this._releaseGrid.current as ReleaseApprovalGrid;
         if (grid != null) {
@@ -68,6 +67,7 @@ class Hub extends React.Component<{}> {
         iconName: "Refresh"
       },
       important: true,
+      className: "",
       onActivate: async () => {
         const grid = this._releaseGrid.current as ReleaseApprovalGrid;
         if (grid != null) {
