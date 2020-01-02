@@ -50,7 +50,7 @@ stages:
               vsixFile: '$(Agent.BuildDirectory)/drop/qa/gustavobergamim.pipeline-approval-qa-*.vsix'
               arguments: --share-with gustavobergamim vstssprints
 - stage: ExtensionPublishProduction
-  displayName: 'Publish extension to Visual Studio Marketplace'
+  displayName: 'Production Publish'
   jobs:
   - deployment: Publish
     pool:
