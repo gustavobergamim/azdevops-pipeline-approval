@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "name": "Azure Pipelines Approval",
   "description": "A simple way for view and approve releases",
   "publisher": "gustavobergamim",
