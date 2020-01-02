@@ -2,8 +2,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Header, TitleSize } from "azure-devops-ui/Header";
 import { Page } from "azure-devops-ui/Page";
-import ReleaseApprovalGrid from "./components/releaseapproval-grid/releaseapproval-grid.component";
+import ReleaseApprovalGrid from "@src-root/hub/components/releaseapproval-grid.component";
 import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
+import { ReleaseApprovalEvents, EventType } from "./model/ReleaseApprovalEvents";
 
 class Hub extends React.Component<{}> {
 
@@ -36,13 +37,7 @@ class Hub extends React.Component<{}> {
         iconName: "CheckMark"
       },
       important: true,
-      className: "",
-      onActivate: () => {
-        const grid = this._releaseGrid.current as ReleaseApprovalGrid;
-        if (grid != null) {
-          grid.approveAll();
-        }
-      },
+      onActivate: () => ReleaseApprovalEvents.fire(EventType.ApproveAllReleases),
       text: "Approve All",
       isPrimary: true
     },
@@ -53,12 +48,7 @@ class Hub extends React.Component<{}> {
       },
       important: true,
       className: "danger",
-      onActivate: () => {
-        const grid = this._releaseGrid.current as ReleaseApprovalGrid;
-        if (grid != null) {
-          grid.rejectAll();
-        }
-      },
+      onActivate: () => ReleaseApprovalEvents.fire(EventType.RejectAllReleases),
       text: "Reject All"
     },
     {
@@ -67,13 +57,7 @@ class Hub extends React.Component<{}> {
         iconName: "Refresh"
       },
       important: true,
-      className: "",
-      onActivate: async () => {
-        const grid = this._releaseGrid.current as ReleaseApprovalGrid;
-        if (grid != null) {
-          await grid.refreshGrid();
-        }
-      },
+      onActivate: () => ReleaseApprovalEvents.fire(EventType.RefreshGrid),
       text: "Refresh"
     }
   ];
