@@ -1,4 +1,4 @@
-name: $(GitVersion.MajorMinorPatch)
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger: none
 
 stages:
@@ -9,15 +9,16 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
-    - task: gittools.gitversion.gitversion-task.GitVersion@5
-      displayName: GitVersion
     - task: NodeTool@0
       inputs:
         versionSpec: '12.x'
       displayName: 'Install Node.js'
     - script: npm install
       displayName: 'Resolving dependencies'
-    - script: npm run package
+    - script: |
+        npm run compile
+        npm run package:qa
+        npm run package:prod
       displayName: 'Building and packing extension'
     - task: CopyFiles@2
       displayName: Copy vsix files
@@ -26,20 +27,6 @@ stages:
         contents: |
           **/*.vsix
         targetFolder: '$(Build.ArtifactStagingDirectory)'
-    - task: CopyFiles@2
-      displayName: Copy manifest file
-      inputs:
-        sourceFolder: $(Build.SourcesDirectory)
-        contents: |
-          vss-extension.json
-        targetFolder: '$(Build.ArtifactStagingDirectory)'
-    - task: CopyFiles@2
-      displayName: Copy config files
-      inputs:
-        sourceFolder: $(Build.SourcesDirectory)/configs
-        contents: |
-          **/*.json
-        targetFolder: '$(Build.ArtifactStagingDirectory)/configs'
     - task: PublishBuildArtifacts@1
       displayName: 'Publishing artifacts'
 - stage: ExtensionPublishQA
@@ -60,9 +47,8 @@ stages:
             inputs:
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
-              vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
-              extensionVersion: '$(Build.BuildNumber)'
-              arguments: --manifest-globs $(Agent.BuildDirectory)/drop/vss-extension.json --overrides-file $(Agent.BuildDirectory)/drop/configs/qa.json
+              vsixFile: '$(Agent.BuildDirectory)/drop/qa/gustavobergamim.pipeline-approval-qa-*.vsix'
+              arguments: --share-with gustavobergamim vstssprints
 - stage: ExtensionPublishProduction
   displayName: 'Publish extension to Visual Studio Marketplace'
   jobs:
@@ -81,6 +67,4 @@ stages:
             inputs:
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
-              vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
-              extensionVersion: '$(Build.BuildNumber)'
-              arguments: --manifest-globs $(Agent.BuildDirectory)/drop/vss-extension.json --overrides-file $(Agent.BuildDirectory)/drop/configs/release.json
+              vsixFile: '$(Agent.BuildDirectory)/drop/prod/gustavobergamim.pipeline-approval-*.vsix'
