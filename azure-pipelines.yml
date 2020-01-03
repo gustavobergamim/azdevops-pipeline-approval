@@ -1,4 +1,4 @@
-name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)_v$(ExtensionVersion)
 trigger: none
 
 stages:
@@ -49,6 +49,7 @@ stages:
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/qa/gustavobergamim.pipeline-approval-qa-*.vsix'
               arguments: --share-with gustavobergamim vstssprints
+              extensionVersion: $(ExtensionVersion)
 - stage: ExtensionPublishProduction
   displayName: 'Production Publish'
   jobs:
@@ -68,3 +69,4 @@ stages:
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/prod/gustavobergamim.pipeline-approval-*.vsix'
+              extensionVersion: $(ExtensionVersion)

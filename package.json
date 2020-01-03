@@ -6,17 +6,17 @@
     "clean": "rimraf ./dist ./out",
     "compile": "npm run clean && webpack --mode production",
     "compile:dev": "npm run clean && webpack --mode development",
-    "package:dev": "npm run compile:dev && tfx extension create --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --rev-version",
-    "package:qa": "tfx extension create --manifest-globs vss-extension.json --overrides-file configs/qa.json --output-path out/qa --rev-version",
-    "package:prod": "tfx extension create --manifest-globs vss-extension.json --overrides-file configs/prod.json --output-path out/prod --rev-version",
+    "package:dev": "npm run compile:dev && tfx extension create --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out",
+    "package:qa": "tfx extension create --manifest-globs vss-extension.json --overrides-file configs/qa.json --output-path out/qa",
+    "package:prod": "tfx extension create --manifest-globs vss-extension.json --overrides-file configs/prod.json --output-path out/prod",
     "publish:dev": "cross-os publish:dev:pat",
     "start:dev": "webpack-dev-server --mode development"
   },
   "cross-os": {
     "publish:dev:pat": {
-      "darwin": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --token $AZ_DEVOPS_MARKETPLACE_PAT",
-      "win32": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --token %AZ_DEVOPS_MARKETPLACE_PAT%",
-      "linux": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --token $AZ_DEVOPS_MARKETPLACE_PAT"
+      "darwin": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token $AZ_DEVOPS_MARKETPLACE_PAT",
+      "win32": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token %AZ_DEVOPS_MARKETPLACE_PAT%",
+      "linux": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token $AZ_DEVOPS_MARKETPLACE_PAT"
     }
   },
   "dependencies": {
