@@ -16,11 +16,15 @@ import { renderGridApproverInfoCell } from "@src-root/hub/components/releaseappr
 import { renderGridActionsCell } from "@src-root/hub/components/releaseapproval-grid-actionscell.component";
 import { Card } from "azure-devops-ui/Card";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
+import { Button } from "azure-devops-ui/Button";
+import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
+    private _pageLength: number = 2;
+    private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
     private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
     private _dialog: React.RefObject<ReleaseApprovalDialog>;
@@ -45,6 +49,7 @@ export default class ReleaseApprovalGrid extends React.Component {
             },
             {
                 id: "approverInfo",
+                name: "Approval Status",
                 renderCell: renderGridApproverInfoCell,
                 width: -60
             },
@@ -93,6 +98,13 @@ export default class ReleaseApprovalGrid extends React.Component {
                             itemProvider={this._tableRowData}
                             selection={this._selection} />
                     </Card>
+                    <ConditionalChildren renderChildren={this._hasMoreItems}>
+                        <div style={{ marginTop: "10px" }}>
+                            <Button
+                                onClick={this.loadData}
+                                text="Load more..." />
+                        </div>
+                    </ConditionalChildren>
                     <ReleaseApprovalDialog
                         ref={this._dialog}
                         action={this._action} />
@@ -101,16 +113,27 @@ export default class ReleaseApprovalGrid extends React.Component {
         );
     }
 
-    private async loadData(): Promise<void> {
-        const tableRowShimmer = new Array(3).fill(new ObservableValue<ReleaseApproval | undefined>(undefined));
-        this._tableRowData.removeAll();
-        this._tableRowData.push(...tableRowShimmer);
-        const approvals = await this._releaseService.listAll();
-        this._tableRowData.removeAll();
+    private loadData = async () => {
+        let continuationToken = 0;
+        const lastIndex = this._tableRowData.value.length - 1;
+        if (lastIndex >= 0) {
+            const lastItem = this._tableRowData.value[lastIndex];
+            continuationToken = lastItem.id - 1;
+        }
+        const rowShimmer = this.getRowShimmer(1);
+        this._tableRowData.push(...rowShimmer);
+        const approvals = await this._releaseService.findApprovals(this._pageLength, continuationToken);
+        this._hasMoreItems.value = this._pageLength == approvals.length;
+        this._tableRowData.pop();
         this._tableRowData.push(...approvals);
     }
 
+    private getRowShimmer(length: number): any[] {
+        return new Array(length).fill(new ObservableValue<ReleaseApproval | undefined>(undefined))
+    }
+
     async refreshGrid(): Promise<void> {
+        this._tableRowData.removeAll();
         await this.loadData();
     }
 
