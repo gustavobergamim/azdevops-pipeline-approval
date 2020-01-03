@@ -23,7 +23,7 @@ export default class ReleaseApprovalGrid extends React.Component {
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
-    private _pageLength: number = 2;
+    private _pageLength: number = 20;
     private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
     private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
