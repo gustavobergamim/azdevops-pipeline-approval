@@ -7,11 +7,11 @@
     "noImplicitThis": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "target": "es6",
+    "target": "ES2017",
     "rootDir": "src/",
     "outDir": "dist/",
     "jsx": "react",
-    "lib": ["es6", "dom"],
+    "lib": ["ES2017", "dom"],
     "types": ["react"],
     "baseUrl": "./",
     "paths": {

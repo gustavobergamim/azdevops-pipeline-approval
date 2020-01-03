@@ -11,6 +11,9 @@ This extension allows you to easily view releases that are pending approval for 
 2. The grid will display all releases pending approval
 3. From each release, you can **approve** or **reject**
    **Note:** If you prefer, you can select more than one release for approval (or rejection) and select **Approve All** (**Reject All**) button.
+4. If you want/need, You can schedule deployment for later with deferred deployment feature:
+
+    ![Deferred deployment screen](img/extension-deferreddeployment-screenshot.png)
 
 ## Feature Backlog
 
@@ -18,14 +21,15 @@ This release has minimal functionality to perform approvals, but we are working 
 
 Here are some features we're working on. Feel free to suggest any other feature.
 
-* **Grid filters:** allows to filter pending approvals by definition, identifier or stage
-* **Security validations:** allows only users that has required scopes to view and interact with the extension
-* **Comments:** allows you to enter a comment for approval or rejection
+* **Grid filters:** allows to filter pending approvals by definition, identifier, status or stage/environment.
+* **Sortable columns:** allows to sort items.
+* **UI improvements**:
+  * add theme support for deferred deployment date picker.
 
 
 ## Pipeline
 
-[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master)](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)
+[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master) ](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)
 
 
 ## Contributors

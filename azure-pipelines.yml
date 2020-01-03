@@ -1,26 +1,27 @@
-name: $(GitVersion.MajorMinorPatch)
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)_v$(ExtensionVersion)
 trigger: none
 
 stages:
 - stage: ExtensionBuild
-  displayName: 'Build and pack extension'
+  displayName: 'Build and pack'
   jobs:
   - job: BuildAndPack
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
-    - task: gittools.gitversion.gitversion-task.GitVersion@5
-      displayName: GitVersion
     - task: NodeTool@0
       inputs:
         versionSpec: '12.x'
       displayName: 'Install Node.js'
     - script: npm install
       displayName: 'Resolving dependencies'
-    - script: npm run package
+    - script: |
+        npm run compile
+        npm run package:qa
+        npm run package:prod
       displayName: 'Building and packing extension'
     - task: CopyFiles@2
-      displayName: Copy build files
+      displayName: Copy vsix files
       inputs:
         sourceFolder: $(Build.SourcesDirectory)/out
         contents: |
@@ -28,13 +29,13 @@ stages:
         targetFolder: '$(Build.ArtifactStagingDirectory)'
     - task: PublishBuildArtifacts@1
       displayName: 'Publishing artifacts'
-- stage: ExtensionPublish
-  displayName: 'Publish extension to Visual Studio Marketplace'
+- stage: ExtensionPublishQA
+  displayName: 'QA Publish'
   jobs:
   - deployment: Publish
     pool:
       vmImage: 'ubuntu-16.04'
-    environment: 'Visual Studio Marketplace'
+    environment: QA
     strategy:
       runOnce:
         deploy:
@@ -46,5 +47,26 @@ stages:
             inputs:
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
-              vsixFile: '$(Agent.BuildDirectory)/drop/gustavobergamim.pipeline-approval-*.vsix'
-              extensionVersion: '$(Build.BuildNumber)'
+              vsixFile: '$(Agent.BuildDirectory)/drop/qa/gustavobergamim.pipeline-approval-qa-*.vsix'
+              arguments: --share-with gustavobergamim vstssprints
+              extensionVersion: $(ExtensionVersion)
+- stage: ExtensionPublishProduction
+  displayName: 'Production Publish'
+  jobs:
+  - deployment: Publish
+    pool:
+      vmImage: 'ubuntu-16.04'
+    environment: Production
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@2
+            displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.6.x'
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-extension-build-task.PublishAzureDevOpsExtension@2
+            displayName: 'Publish Extension'
+            inputs:
+              connectedServiceName: 'VS MarketPlace'
+              fileType: vsix
+              vsixFile: '$(Agent.BuildDirectory)/drop/prod/gustavobergamim.pipeline-approval-*.vsix'
+              extensionVersion: $(ExtensionVersion)

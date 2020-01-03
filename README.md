@@ -1,11 +1,14 @@
 # Azure Pipelines Approval
 
+[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master) ](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)
+
+
+See on [Visual Studio MarketPlace](https://marketplace.visualstudio.com/items?itemName=GustavoBergamim.pipeline-approval).
+
+
+---
+
 This extension allows you to easily view releases that are pending approval for your user, allowing you to approve them directly from a simple grid view. You can approve them one by one or in batch.
-
-
-## Pipeline
-
-[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master)](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)
 
 
 ## Contributors
@@ -32,7 +35,7 @@ Follow these steps to run a dev version of this project that supports hot reload
 1. Deploy the extension to the marketplace:
 
    ```shell
-   npm run publish:dev -- --token [token]
+   npm run publish:dev --token [token]
    ```
 
    > The `[token]` here is an Azure DevOps PAT (personal access token) with the **Marketplace (Publish)** scope and access set to **All accessible organizations**. For more information, see [Authenticate access with personal access tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate).

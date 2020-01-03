@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 const entries = {};
 const srcDir = path.join(__dirname, "src");
@@ -17,7 +18,7 @@ module.exports = {
   },
   devtool: "inline-source-map",
   devServer: {
-    https: true,
+    https: false,
     port: 3000
   },
   resolve: {
@@ -26,7 +27,8 @@ module.exports = {
       "azure-devops-extension-sdk": path.resolve(
         "node_modules/azure-devops-extension-sdk"
       )
-    }
+    },
+    plugins: [new TsconfigPathsPlugin()]
   },
   stats: {
     warnings: false
