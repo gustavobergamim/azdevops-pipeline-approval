@@ -1,10 +1,7 @@
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
-import { Table, renderSimpleCell, ITableColumn, SimpleTableCell, ColumnSelect } from "azure-devops-ui/Table";
+import { Table, ITableColumn, ColumnSelect } from "azure-devops-ui/Table";
 import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
-import { ButtonGroup } from "azure-devops-ui/ButtonGroup";
-import { Button } from "azure-devops-ui/Button";
-import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ListSelection } from "azure-devops-ui/List";
 import { CommonServiceIds, IGlobalMessagesService } from "azure-devops-extension-api";
@@ -13,14 +10,23 @@ import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
 import ReleaseApprovalDialog from "@src-root/hub/components/releaseapproval-dialog.component";
 import { ReleaseApprovalAction } from "@src-root/hub/model/ReleaseApprovalAction";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
+import { renderGridPipelineCell } from "@src-root/hub/components/releaseapproval-grid-pipelinecell.component";
+import { renderGridReleaseInfoCell } from "@src-root/hub/components/releaseapproval-grid-releaseinfocell.component";
+import { renderGridApproverInfoCell } from "@src-root/hub/components/releaseapproval-grid-approverinfocell.component";
+import { renderGridActionsCell } from "@src-root/hub/components/releaseapproval-grid-actionscell.component";
+import { Card } from "azure-devops-ui/Card";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
+import { Button } from "azure-devops-ui/Button";
+import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
-    private _tableRowShimmer = new Array(5).fill(new ObservableValue<IReleaseApproval | undefined>(undefined));
-    private _tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>(this._tableRowShimmer);
+    private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
+    private _pageLength: number = 2;
+    private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
-    private _selectedReleases: ArrayItemProvider<IReleaseApproval> = new ArrayItemProvider<IReleaseApproval>([]);
+    private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
     private _dialog: React.RefObject<ReleaseApprovalDialog>;
     private get dialog() {
         return this._dialog.current as ReleaseApprovalDialog;
@@ -31,27 +37,26 @@ export default class ReleaseApprovalGrid extends React.Component {
         return [
             new ColumnSelect() as ITableColumn<{}>,
             {
-                id: "definition",
-                name: "Definition",
-                renderCell: renderSimpleCell,
-                width: -30
+                id: "release",
+                name: "Release",
+                renderCell: renderGridPipelineCell,
+                width: 250
             },
             {
-                id: "number",
-                name: "Identifier",
-                renderCell: renderSimpleCell,
-                width: -20
+                id: "releaseInfo",
+                renderCell: renderGridReleaseInfoCell,
+                width: -40
             },
             {
-                id: "environment",
-                name: "Stage",
-                renderCell: renderSimpleCell,
-                width: -20
+                id: "approverInfo",
+                name: "Approval Status",
+                renderCell: renderGridApproverInfoCell,
+                width: -60
             },
             {
                 id: "actions",
-                renderCell: this._renderStage,
-                width: -30
+                renderCell: renderGridActionsCell,
+                width: 150
             }
         ]
     };
@@ -67,30 +72,39 @@ export default class ReleaseApprovalGrid extends React.Component {
             await this.refreshGrid();
         });
         ReleaseApprovalEvents.subscribe(EventType.ClearGridSelection, () => {
-            this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
+            this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([]);
         });
         ReleaseApprovalEvents.subscribe(EventType.ApproveAllReleases, async () => {
             await this.approveAll();
         });
-        ReleaseApprovalEvents.subscribe(EventType.ApproveSingleRelease, (approval: IReleaseApproval) => {
-            this._approveSingle(approval);
+        ReleaseApprovalEvents.subscribe(EventType.ApproveSingleRelease, (approval: ReleaseApproval) => {
+            this.approveSingle(approval);
         });
         ReleaseApprovalEvents.subscribe(EventType.RejectAllReleases, async () => {
             await this.rejectAll();
         });
-        ReleaseApprovalEvents.subscribe(EventType.RejectSingleRelease, (approval: IReleaseApproval) => {
-            this._rejectSingle(approval);
+        ReleaseApprovalEvents.subscribe(EventType.RejectSingleRelease, (approval: ReleaseApproval) => {
+            this.rejectSingle(approval);
         });
     }
 
     render(): JSX.Element {
-        this._loadData();
+        this.loadData();
         return (
             <div className="flex-grow">
                 <div>
-                    <Table columns={this._configureGridColumns()}
-                        itemProvider={this._tableRowData}
-                        selection={this._selection} />
+                    <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
+                        <Table columns={this._configureGridColumns()}
+                            itemProvider={this._tableRowData}
+                            selection={this._selection} />
+                    </Card>
+                    <ConditionalChildren renderChildren={this._hasMoreItems}>
+                        <div style={{ marginTop: "10px" }}>
+                            <Button
+                                onClick={this.loadData}
+                                text="Load more..." />
+                        </div>
+                    </ConditionalChildren>
                     <ReleaseApprovalDialog
                         ref={this._dialog}
                         action={this._action} />
@@ -99,98 +113,80 @@ export default class ReleaseApprovalGrid extends React.Component {
         );
     }
 
-    private _renderStage(
-        rowIndex: number,
-        columnIndex: number,
-        tableColumn: ITableColumn<{}>,
-        tableItem: any
-    ): JSX.Element {
-        const approval: IReleaseApproval = tableItem;
-        return (
-            <SimpleTableCell
-                columnIndex={columnIndex}
-                tableColumn={tableColumn}
-                key={"col-" + columnIndex}>
-                <ButtonGroup>
-                    <Button
-                        key={"btn-approve-" + approval.id}
-                        text="Approve"
-                        primary={true}
-                        iconProps={{ iconName: "CheckMark" }}
-                        onClick={() => ReleaseApprovalEvents.fire(EventType.ApproveSingleRelease, approval)} />
-                    <Button
-                        key={"btn-reject-" + approval.id}
-                        text="Reject"
-                        danger={true}
-                        iconProps={{ iconName: "Cancel" }}
-                        onClick={() => ReleaseApprovalEvents.fire(EventType.RejectSingleRelease, approval)} />
-                </ButtonGroup>
-            </SimpleTableCell>
-        );
-    }
-
-    private async _loadData(): Promise<void> {
-        this._tableRowData.removeAll();
-        this._tableRowData.push(...this._tableRowShimmer);
-        const approvals = await this._releaseService.listAll();
-        this._tableRowData.removeAll();
+    private loadData = async () => {
+        let continuationToken = 0;
+        const lastIndex = this._tableRowData.value.length - 1;
+        if (lastIndex >= 0) {
+            const lastItem = this._tableRowData.value[lastIndex];
+            continuationToken = lastItem.id - 1;
+        }
+        const rowShimmer = this.getRowShimmer(1);
+        this._tableRowData.push(...rowShimmer);
+        const approvals = await this._releaseService.findApprovals(this._pageLength, continuationToken);
+        this._hasMoreItems.value = this._pageLength == approvals.length;
+        this._tableRowData.pop();
         this._tableRowData.push(...approvals);
     }
 
-    async refreshGrid(): Promise<void> {
-        await this._loadData();
+    private getRowShimmer(length: number): any[] {
+        return new Array(length).fill(new ObservableValue<ReleaseApproval | undefined>(undefined))
     }
 
-    private _approveSingle(approval: IReleaseApproval): void {
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([approval]);
-        this._approve();
+    async refreshGrid(): Promise<void> {
+        this._tableRowData.removeAll();
+        await this.loadData();
+    }
+
+    private approveSingle(approval: ReleaseApproval): void {
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([approval]);
+        this.approve();
     }
 
     async approveAll(): Promise<void> {
         if (this._selection.value.length == 0) {
-            await this._showErrorMessage("You need to select at least one release to Approve.");
+            await this.showErrorMessage("You need to select at least one release to Approve.");
             return;
         }
-        this._getSelectedReleases();
-        this._approve();
+        this.getSelectedReleases();
+        this.approve();
     }
 
-    private _approve(): void {
+    private approve(): void {
         this._action.value = ReleaseApprovalAction.Approve;
         this.dialog.openDialog(this._selectedReleases);
     }
 
-    private _rejectSingle(approval: IReleaseApproval): void {
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([approval]);
-        this._reject();
+    private rejectSingle(approval: ReleaseApproval): void {
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([approval]);
+        this.reject();
     }
 
     async rejectAll(): Promise<void> {
         if (this._selection.value.length == 0) {
-            await this._showErrorMessage("You need to select at least one release to Reject.");
+            await this.showErrorMessage("You need to select at least one release to Reject.");
             return;
         }
-        this._getSelectedReleases();
-        this._reject();
+        this.getSelectedReleases();
+        this.reject();
     }
 
-    private _reject(): void {
+    private reject(): void {
         this._action.value = ReleaseApprovalAction.Reject;
         this.dialog.openDialog(this._selectedReleases);
     }
 
-    private _getSelectedReleases(): void {
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
-        let releases: Array<IReleaseApproval> = new Array<IReleaseApproval>();
+    private getSelectedReleases(): void {
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([]);
+        let releases: Array<ReleaseApproval> = new Array<ReleaseApproval>();
         this._selection.value.forEach((range: ISelectionRange, rangeIndex: number) => {
             for (let index: number = range.beginIndex; index <= range.endIndex; index++) {
                 releases.push(this._tableRowData.value[index]);
             }
         });
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>(releases);
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>(releases);
     }
 
-    private async _showErrorMessage(message: string): Promise<void> {
+    private async showErrorMessage(message: string): Promise<void> {
         const globalMessagesSvc = await SDK.getService<IGlobalMessagesService>(CommonServiceIds.GlobalMessagesService);
         globalMessagesSvc.addToast({
             duration: 3000,

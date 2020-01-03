@@ -3,7 +3,6 @@ import { Dialog } from "azure-devops-ui/Dialog";
 import { ContentSize } from "azure-devops-ui/Callout";
 import { ObservableValue } from "azure-devops-ui/Core/Observable";
 import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
-import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { ReleaseApprovalAction, ActionType } from "@src-root/hub/model/ReleaseApprovalAction";
 import { Observer } from "azure-devops-ui/Observer";
 import { Card } from "azure-devops-ui/Card";
@@ -12,6 +11,7 @@ import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 import { DialogDeferredDeployment } from "@src-root/hub/components/dialog-deferreddeployment.component";
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export interface IDialogReleaseListProps {
     action: ObservableValue<ReleaseApprovalAction>;
@@ -21,7 +21,7 @@ export default class ReleaseApprovalDialog extends React.Component<IDialogReleas
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();    
     private _isOpen: ObservableValue<boolean> = new ObservableValue<boolean>(false);
-    private _releases?: ArrayItemProvider<IReleaseApproval>;
+    private _releases?: ArrayItemProvider<ReleaseApproval>;
     private _deferredDeployment: React.RefObject<DialogDeferredDeployment>;    
     private get deferredDeployment() {
         return this._deferredDeployment.current as DialogDeferredDeployment;
@@ -65,7 +65,7 @@ export default class ReleaseApprovalDialog extends React.Component<IDialogReleas
         );
     }
 
-    openDialog(releases: ArrayItemProvider<IReleaseApproval>): void {
+    openDialog(releases: ArrayItemProvider<ReleaseApproval>): void {
         this._releases = releases;
         this._isOpen.value = true;        
     }
