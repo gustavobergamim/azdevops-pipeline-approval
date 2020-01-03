@@ -11,7 +11,9 @@ This extension allows you to easily view releases that are pending approval for 
 2. The grid will display all releases pending approval
 3. From each release, you can **approve** or **reject**
    **Note:** If you prefer, you can select more than one release for approval (or rejection) and select **Approve All** (**Reject All**) button.
-4. If you want/need, You can schedule deployment for later with deferred deployment feature
+4. If you want/need, You can schedule deployment for later with deferred deployment feature:
+
+    ![Deferred deployment screen](img/extension-deferreddeployment-screenshot.png)
 
 ## Feature Backlog
 
@@ -22,7 +24,7 @@ Here are some features we're working on. Feel free to suggest any other feature.
 * **Grid filters:** allows to filter pending approvals by definition, identifier, status or stage/environment.
 * **Sortable columns:** allows to sort items.
 * **Comments:** allows you to enter a comment for approval or rejection.
-* **UI improvements**: show more version approval information, such as which group the user is a member of and needs to approve on their behalf. Change some colors and add theme support for deferred deployment date picker.
+* **UI improvements**: add theme support for deferred deployment date picker.
 
 
 ## Pipeline
