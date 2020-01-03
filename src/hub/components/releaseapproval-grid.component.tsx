@@ -1,9 +1,7 @@
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
-import { Table, renderSimpleCell, ITableColumn, SimpleTableCell, ColumnSelect } from "azure-devops-ui/Table";
+import { Table, ITableColumn, ColumnSelect } from "azure-devops-ui/Table";
 import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
-import { ButtonGroup } from "azure-devops-ui/ButtonGroup";
-import { Button } from "azure-devops-ui/Button";
 import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ListSelection } from "azure-devops-ui/List";
@@ -13,6 +11,11 @@ import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
 import ReleaseApprovalDialog from "@src-root/hub/components/releaseapproval-dialog.component";
 import { ReleaseApprovalAction } from "@src-root/hub/model/ReleaseApprovalAction";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
+import { renderGridPipelineCell } from "@src-root/hub/components/releaseapproval-grid-pipelinecell.component";
+import { renderGridReleaseInfoCell } from "@src-root/hub/components/releaseapproval-grid-releaseinfocell.component";
+import { renderGridApproverInfoCell } from "@src-root/hub/components/releaseapproval-grid-approverinfocell.component";
+import { renderGridActionsCell } from "@src-root/hub/components/releaseapproval-grid-actionscell.component";
+import { Card } from "azure-devops-ui/Card";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
@@ -31,27 +34,25 @@ export default class ReleaseApprovalGrid extends React.Component {
         return [
             new ColumnSelect() as ITableColumn<{}>,
             {
-                id: "definition",
-                name: "Definition",
-                renderCell: renderSimpleCell,
-                width: -30
+                id: "release",
+                name: "Release",
+                renderCell: renderGridPipelineCell,
+                width: 250
             },
             {
-                id: "number",
-                name: "Identifier",
-                renderCell: renderSimpleCell,
-                width: -20
+                id: "releaseInfo",
+                renderCell: renderGridReleaseInfoCell,
+                width: -40
             },
             {
-                id: "environment",
-                name: "Stage",
-                renderCell: renderSimpleCell,
-                width: -20
+                id: "approverInfo",
+                renderCell: renderGridApproverInfoCell,
+                width: -60
             },
             {
                 id: "actions",
-                renderCell: this._renderStage,
-                width: -30
+                renderCell: renderGridActionsCell,
+                width: 150
             }
         ]
     };
@@ -73,24 +74,26 @@ export default class ReleaseApprovalGrid extends React.Component {
             await this.approveAll();
         });
         ReleaseApprovalEvents.subscribe(EventType.ApproveSingleRelease, (approval: IReleaseApproval) => {
-            this._approveSingle(approval);
+            this.approveSingle(approval);
         });
         ReleaseApprovalEvents.subscribe(EventType.RejectAllReleases, async () => {
             await this.rejectAll();
         });
         ReleaseApprovalEvents.subscribe(EventType.RejectSingleRelease, (approval: IReleaseApproval) => {
-            this._rejectSingle(approval);
+            this.rejectSingle(approval);
         });
     }
 
     render(): JSX.Element {
-        this._loadData();
+        this.loadData();
         return (
             <div className="flex-grow">
                 <div>
-                    <Table columns={this._configureGridColumns()}
-                        itemProvider={this._tableRowData}
-                        selection={this._selection} />
+                    <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
+                        <Table columns={this._configureGridColumns()}
+                            itemProvider={this._tableRowData}
+                            selection={this._selection} />
+                    </Card>
                     <ReleaseApprovalDialog
                         ref={this._dialog}
                         action={this._action} />
@@ -99,37 +102,7 @@ export default class ReleaseApprovalGrid extends React.Component {
         );
     }
 
-    private _renderStage(
-        rowIndex: number,
-        columnIndex: number,
-        tableColumn: ITableColumn<{}>,
-        tableItem: any
-    ): JSX.Element {
-        const approval: IReleaseApproval = tableItem;
-        return (
-            <SimpleTableCell
-                columnIndex={columnIndex}
-                tableColumn={tableColumn}
-                key={"col-" + columnIndex}>
-                <ButtonGroup>
-                    <Button
-                        key={"btn-approve-" + approval.id}
-                        text="Approve"
-                        primary={true}
-                        iconProps={{ iconName: "CheckMark" }}
-                        onClick={() => ReleaseApprovalEvents.fire(EventType.ApproveSingleRelease, approval)} />
-                    <Button
-                        key={"btn-reject-" + approval.id}
-                        text="Reject"
-                        danger={true}
-                        iconProps={{ iconName: "Cancel" }}
-                        onClick={() => ReleaseApprovalEvents.fire(EventType.RejectSingleRelease, approval)} />
-                </ButtonGroup>
-            </SimpleTableCell>
-        );
-    }
-
-    private async _loadData(): Promise<void> {
+    private async loadData(): Promise<void> {
         this._tableRowData.removeAll();
         this._tableRowData.push(...this._tableRowShimmer);
         const approvals = await this._releaseService.listAll();
@@ -138,48 +111,48 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     async refreshGrid(): Promise<void> {
-        await this._loadData();
+        await this.loadData();
     }
 
-    private _approveSingle(approval: IReleaseApproval): void {
+    private approveSingle(approval: IReleaseApproval): void {
         this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([approval]);
-        this._approve();
+        this.approve();
     }
 
     async approveAll(): Promise<void> {
         if (this._selection.value.length == 0) {
-            await this._showErrorMessage("You need to select at least one release to Approve.");
+            await this.showErrorMessage("You need to select at least one release to Approve.");
             return;
         }
-        this._getSelectedReleases();
-        this._approve();
+        this.getSelectedReleases();
+        this.approve();
     }
 
-    private _approve(): void {
+    private approve(): void {
         this._action.value = ReleaseApprovalAction.Approve;
         this.dialog.openDialog(this._selectedReleases);
     }
 
-    private _rejectSingle(approval: IReleaseApproval): void {
+    private rejectSingle(approval: IReleaseApproval): void {
         this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([approval]);
-        this._reject();
+        this.reject();
     }
 
     async rejectAll(): Promise<void> {
         if (this._selection.value.length == 0) {
-            await this._showErrorMessage("You need to select at least one release to Reject.");
+            await this.showErrorMessage("You need to select at least one release to Reject.");
             return;
         }
-        this._getSelectedReleases();
-        this._reject();
+        this.getSelectedReleases();
+        this.reject();
     }
 
-    private _reject(): void {
+    private reject(): void {
         this._action.value = ReleaseApprovalAction.Reject;
         this.dialog.openDialog(this._selectedReleases);
     }
 
-    private _getSelectedReleases(): void {
+    private getSelectedReleases(): void {
         this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
         let releases: Array<IReleaseApproval> = new Array<IReleaseApproval>();
         this._selection.value.forEach((range: ISelectionRange, rangeIndex: number) => {
@@ -190,7 +163,7 @@ export default class ReleaseApprovalGrid extends React.Component {
         this._selectedReleases = new ArrayItemProvider<IReleaseApproval>(releases);
     }
 
-    private async _showErrorMessage(message: string): Promise<void> {
+    private async showErrorMessage(message: string): Promise<void> {
         const globalMessagesSvc = await SDK.getService<IGlobalMessagesService>(CommonServiceIds.GlobalMessagesService);
         globalMessagesSvc.addToast({
             duration: 3000,

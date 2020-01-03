@@ -6,7 +6,7 @@ import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 export class ReleaseApprovalService {
 
     constructor() {
-        SDK.init();
+        // SDK.init();
     }
 
     async listAll(top: number = 50): Promise<IReleaseApproval[]> {

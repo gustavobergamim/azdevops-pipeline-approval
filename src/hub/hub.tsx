@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import * as SDK from "azure-devops-extension-sdk";
 import { Header, TitleSize } from "azure-devops-ui/Header";
 import { Page } from "azure-devops-ui/Page";
 import ReleaseApprovalGrid from "@src-root/hub/components/releaseapproval-grid.component";
@@ -13,6 +14,7 @@ class Hub extends React.Component<{}> {
   constructor(props: {}) {
     super(props);
     this._releaseGrid = React.createRef();
+    SDK.init();
   }
 
   render(): JSX.Element {
@@ -30,7 +32,7 @@ class Hub extends React.Component<{}> {
     );
   }
 
-  _createCommandBarItems: IHeaderCommandBarItem[] = [
+  private _createCommandBarItems: IHeaderCommandBarItem[] = [
     {
       id: "approve-all",
       iconProps: {
