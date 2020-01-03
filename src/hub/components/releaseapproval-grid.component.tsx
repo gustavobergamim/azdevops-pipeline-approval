@@ -2,7 +2,6 @@ import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
 import { Table, ITableColumn, ColumnSelect } from "azure-devops-ui/Table";
 import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
-import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ListSelection } from "azure-devops-ui/List";
 import { CommonServiceIds, IGlobalMessagesService } from "azure-devops-extension-api";
@@ -16,14 +15,15 @@ import { renderGridReleaseInfoCell } from "@src-root/hub/components/releaseappro
 import { renderGridApproverInfoCell } from "@src-root/hub/components/releaseapproval-grid-approverinfocell.component";
 import { renderGridActionsCell } from "@src-root/hub/components/releaseapproval-grid-actionscell.component";
 import { Card } from "azure-devops-ui/Card";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
-    private _tableRowShimmer = new Array(5).fill(new ObservableValue<IReleaseApproval | undefined>(undefined));
-    private _tableRowData: ObservableArray<IReleaseApproval> = new ObservableArray<IReleaseApproval>(this._tableRowShimmer);
+    private _tableRowShimmer = new Array(5).fill(new ObservableValue<ReleaseApproval | undefined>(undefined));
+    private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>(this._tableRowShimmer);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
-    private _selectedReleases: ArrayItemProvider<IReleaseApproval> = new ArrayItemProvider<IReleaseApproval>([]);
+    private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
     private _dialog: React.RefObject<ReleaseApprovalDialog>;
     private get dialog() {
         return this._dialog.current as ReleaseApprovalDialog;
@@ -68,18 +68,18 @@ export default class ReleaseApprovalGrid extends React.Component {
             await this.refreshGrid();
         });
         ReleaseApprovalEvents.subscribe(EventType.ClearGridSelection, () => {
-            this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
+            this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([]);
         });
         ReleaseApprovalEvents.subscribe(EventType.ApproveAllReleases, async () => {
             await this.approveAll();
         });
-        ReleaseApprovalEvents.subscribe(EventType.ApproveSingleRelease, (approval: IReleaseApproval) => {
+        ReleaseApprovalEvents.subscribe(EventType.ApproveSingleRelease, (approval: ReleaseApproval) => {
             this.approveSingle(approval);
         });
         ReleaseApprovalEvents.subscribe(EventType.RejectAllReleases, async () => {
             await this.rejectAll();
         });
-        ReleaseApprovalEvents.subscribe(EventType.RejectSingleRelease, (approval: IReleaseApproval) => {
+        ReleaseApprovalEvents.subscribe(EventType.RejectSingleRelease, (approval: ReleaseApproval) => {
             this.rejectSingle(approval);
         });
     }
@@ -114,8 +114,8 @@ export default class ReleaseApprovalGrid extends React.Component {
         await this.loadData();
     }
 
-    private approveSingle(approval: IReleaseApproval): void {
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([approval]);
+    private approveSingle(approval: ReleaseApproval): void {
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([approval]);
         this.approve();
     }
 
@@ -133,8 +133,8 @@ export default class ReleaseApprovalGrid extends React.Component {
         this.dialog.openDialog(this._selectedReleases);
     }
 
-    private rejectSingle(approval: IReleaseApproval): void {
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([approval]);
+    private rejectSingle(approval: ReleaseApproval): void {
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([approval]);
         this.reject();
     }
 
@@ -153,14 +153,14 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     private getSelectedReleases(): void {
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>([]);
-        let releases: Array<IReleaseApproval> = new Array<IReleaseApproval>();
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([]);
+        let releases: Array<ReleaseApproval> = new Array<ReleaseApproval>();
         this._selection.value.forEach((range: ISelectionRange, rangeIndex: number) => {
             for (let index: number = range.beginIndex; index <= range.endIndex; index++) {
                 releases.push(this._tableRowData.value[index]);
             }
         });
-        this._selectedReleases = new ArrayItemProvider<IReleaseApproval>(releases);
+        this._selectedReleases = new ArrayItemProvider<ReleaseApproval>(releases);
     }
 
     private async showErrorMessage(message: string): Promise<void> {

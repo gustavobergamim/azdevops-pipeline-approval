@@ -1,9 +1,9 @@
 import * as React from "react";
-import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { ITableColumn, SimpleTableCell } from "azure-devops-ui/Table";
 import { Status, Statuses, StatusSize } from "azure-devops-ui/Status";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { Link } from "azure-devops-ui/Link";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export function renderGridPipelineCell(
     rowIndex: number,
@@ -11,7 +11,7 @@ export function renderGridPipelineCell(
     tableColumn: ITableColumn<{}>,
     tableItem: any
 ): JSX.Element {
-    const approval: IReleaseApproval = tableItem;
+    const approval: ReleaseApproval = tableItem;
     return (<ReleaseApprovalGridPipelineCell
         rowIndex={rowIndex}
         columnIndex={columnIndex}
@@ -20,7 +20,7 @@ export function renderGridPipelineCell(
 }
 
 export interface IReleaseApprovalGridPipelineCellProps {
-    releaseApproval: IReleaseApproval;
+    releaseApproval: ReleaseApproval;
     rowIndex: number;
     columnIndex: number;
     tableColumn: ITableColumn<{}>;
@@ -42,17 +42,19 @@ export default class ReleaseApprovalGridPipelineCell extends React.Component<IRe
                 key={"col-" + this.props.columnIndex}
                 contentClassName="fontWeightSemiBold font-weight-semibold fontSizeM font-size-m scroll-hidden">
                 <Tooltip overflowOnly={true}>
-                    <Link
+                    {/* <Link
                         className="fontSizeM font-size-m text-ellipsis bolt-table-link bolt-table-inline-link"
                         excludeTabStop
-                        href={releaseDefinitionUri}>
+                        href={releaseDefinitionUri}> */}
+                    <span className="fontSizeM font-size-m text-ellipsis bolt-table-link bolt-table-inline-link">
                         <Status
                             {...Statuses.Waiting}
                             key="waiting"
                             className="icon-large-margin"
                             size={StatusSize.m} />
                         {releaseDefinitionName}
-                    </Link>
+                        {/* </Link> */}
+                    </span>
                 </Tooltip>
             </SimpleTableCell>
         );

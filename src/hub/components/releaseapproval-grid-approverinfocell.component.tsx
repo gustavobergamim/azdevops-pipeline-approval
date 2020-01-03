@@ -1,14 +1,11 @@
 import * as React from "react";
-import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { TwoLineTableCell, ITableColumn } from "azure-devops-ui/Table";
 import { UserService } from "@src-root/hub/services/user.service";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
-import { Link } from "azure-devops-ui/Link";
 import { Icon } from "azure-devops-ui/Icon";
 import { Duration } from "azure-devops-ui/Duration";
-import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
-import { Colors } from "@src-root/hub/model/Colors";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export function renderGridApproverInfoCell(
     rowIndex: number,
@@ -16,7 +13,7 @@ export function renderGridApproverInfoCell(
     tableColumn: ITableColumn<{}>,
     tableItem: any
 ): JSX.Element {
-    const approval: IReleaseApproval = tableItem;
+    const approval: ReleaseApproval = tableItem;
     return (<ReleaseApprovalGridApproverInfoCell
         rowIndex={rowIndex}
         columnIndex={columnIndex}
@@ -25,7 +22,7 @@ export function renderGridApproverInfoCell(
 }
 
 export interface IReleaseApprovalGridApproverInfoCellProps {
-    releaseApproval: IReleaseApproval;
+    releaseApproval: ReleaseApproval;
     rowIndex: number;
     columnIndex: number;
     tableColumn: ITableColumn<{}>;

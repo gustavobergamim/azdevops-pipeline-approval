@@ -1,14 +1,14 @@
 import * as React from "react";
 import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
-import { IReleaseApproval } from "@src-root/hub/model/IReleaseApproval";
 import { ScrollableList, IListItemDetails, ListItem } from "azure-devops-ui/List";
 import { IconSize, Icon } from "azure-devops-ui/Icon";
 import { PillGroup } from "azure-devops-ui/PillGroup";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
 import { Colors } from "@src-root/hub/model/Colors";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export interface IDialogReleaseListProps {
-    releases?: ArrayItemProvider<IReleaseApproval>;
+    releases?: ArrayItemProvider<ReleaseApproval>;
 }
 
 export class DialogReleaseList extends React.Component<IDialogReleaseListProps> {
@@ -18,7 +18,7 @@ export class DialogReleaseList extends React.Component<IDialogReleaseListProps> 
     }
 
     render(): JSX.Element {
-        const releases = this.props.releases ? this.props.releases : new ArrayItemProvider<IReleaseApproval>([]);
+        const releases = this.props.releases ? this.props.releases : new ArrayItemProvider<ReleaseApproval>([]);
         return (<ScrollableList
             itemProvider={releases}
             renderRow={this._renderListRow}
@@ -27,8 +27,8 @@ export class DialogReleaseList extends React.Component<IDialogReleaseListProps> 
 
     _renderListRow = (
         index: number,
-        item: IReleaseApproval,
-        details: IListItemDetails<IReleaseApproval>,
+        item: ReleaseApproval,
+        details: IListItemDetails<ReleaseApproval>,
         key?: string
     ): JSX.Element => {
 
@@ -40,12 +40,12 @@ export class DialogReleaseList extends React.Component<IDialogReleaseListProps> 
                         style={{ marginLeft: "10px", padding: "10px 0px" }}
                         className="flex-column h-scroll-hidden">
                         <PillGroup className="flex-row">
-                            <Pill>{item.definition}</Pill>
+                            <Pill>{item.releaseDefinition.name}</Pill>
                             <Pill size={PillSize.compact} variant={PillVariant.outlined}>
-                                {item.number}
+                                {item.release.name}
                             </Pill>
                             <Pill size={PillSize.compact} variant={PillVariant.colored} color={Colors.darkRedColor}>
-                                {item.environment}
+                                {item.releaseEnvironment.name}
                             </Pill>
                         </PillGroup>
                     </div>
