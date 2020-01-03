@@ -1,9 +1,6 @@
 # Azure Pipelines Approval
 
-| Branch  | Pipeline                                                                                                                                                                                                                                                                                        |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| master  | [![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master) ](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)  |
-| develop | [![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master) ](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=develop) |
+[![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/pipeline-approval/gustavobergamim.azdevops-pipeline-approval?branchName=master) ](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=20&branchName=master)
 
 
 See on [Visual Studio MarketPlace](https://marketplace.visualstudio.com/items?itemName=GustavoBergamim.pipeline-approval).
