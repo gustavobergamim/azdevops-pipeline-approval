@@ -1,4 +1,4 @@
-name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)_v$(ExtensionVersion)
 trigger: none
 
 stages:
@@ -9,6 +9,8 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
+    - task: gittools.gitversion.gitversion-task.GitVersion@5
+      displayName: GitVersion
     - task: NodeTool@0
       inputs:
         versionSpec: '12.x'
@@ -49,6 +51,7 @@ stages:
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/qa/gustavobergamim.pipeline-approval-qa-*.vsix'
               arguments: --share-with gustavobergamim vstssprints
+              extensionVersion: $(ExtensionVersion)
 - stage: ExtensionPublishProduction
   displayName: 'Production Publish'
   jobs:
@@ -68,3 +71,4 @@ stages:
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
               vsixFile: '$(Agent.BuildDirectory)/drop/prod/gustavobergamim.pipeline-approval-*.vsix'
+              extensionVersion: $(ExtensionVersion)
