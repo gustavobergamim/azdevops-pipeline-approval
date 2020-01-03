@@ -20,8 +20,7 @@ import { ReleaseApproval } from "azure-devops-extension-api/Release";
 export default class ReleaseApprovalGrid extends React.Component {
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
-    private _tableRowShimmer = new Array(5).fill(new ObservableValue<ReleaseApproval | undefined>(undefined));
-    private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>(this._tableRowShimmer);
+    private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
     private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
     private _dialog: React.RefObject<ReleaseApprovalDialog>;
@@ -103,8 +102,9 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     private async loadData(): Promise<void> {
+        const tableRowShimmer = new Array(3).fill(new ObservableValue<ReleaseApproval | undefined>(undefined));
         this._tableRowData.removeAll();
-        this._tableRowData.push(...this._tableRowShimmer);
+        this._tableRowData.push(...tableRowShimmer);
         const approvals = await this._releaseService.listAll();
         this._tableRowData.removeAll();
         this._tableRowData.push(...approvals);
