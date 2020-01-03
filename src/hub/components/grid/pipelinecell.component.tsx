@@ -2,7 +2,7 @@ import * as React from "react";
 import { ITableColumn, SimpleTableCell } from "azure-devops-ui/Table";
 import { Status, Statuses, StatusSize } from "azure-devops-ui/Status";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
-import { Link } from "azure-devops-ui/Link";
+// import { Link } from "azure-devops-ui/Link";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export function renderGridPipelineCell(
@@ -12,23 +12,23 @@ export function renderGridPipelineCell(
     tableItem: any
 ): JSX.Element {
     const approval: ReleaseApproval = tableItem;
-    return (<ReleaseApprovalGridPipelineCell
+    return (<GridPipelineCell
         rowIndex={rowIndex}
         columnIndex={columnIndex}
         tableColumn={tableColumn}
         releaseApproval={approval} />);
 }
 
-export interface IReleaseApprovalGridPipelineCellProps {
+export interface IGridPipelineCellProps {
     releaseApproval: ReleaseApproval;
     rowIndex: number;
     columnIndex: number;
     tableColumn: ITableColumn<{}>;
 }
 
-export default class ReleaseApprovalGridPipelineCell extends React.Component<IReleaseApprovalGridPipelineCellProps> {
+export default class GridPipelineCell extends React.Component<IGridPipelineCellProps> {
 
-    constructor(props: IReleaseApprovalGridPipelineCellProps) {
+    constructor(props: IGridPipelineCellProps) {
         super(props);
     }
 

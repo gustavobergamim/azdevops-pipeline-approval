@@ -24,8 +24,7 @@ Here are some features we're working on. Feel free to suggest any other feature.
 * **Grid filters:** allows to filter pending approvals by definition, identifier, status or stage/environment.
 * **Sortable columns:** allows to sort items.
 * **UI improvements**:
-  * add theme support for deferred deployment date picker;
-  * change approval confirmation from dialog to panel.
+  * add theme support for deferred deployment date picker.
 
 
 ## Pipeline

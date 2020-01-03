@@ -7,17 +7,17 @@ import { ListSelection } from "azure-devops-ui/List";
 import { CommonServiceIds, IGlobalMessagesService } from "azure-devops-extension-api";
 import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
-import ReleaseApprovalDialog from "@src-root/hub/components/releaseapproval-dialog.component";
 import { ReleaseApprovalAction } from "@src-root/hub/model/ReleaseApprovalAction";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
-import { renderGridPipelineCell } from "@src-root/hub/components/releaseapproval-grid-pipelinecell.component";
-import { renderGridReleaseInfoCell } from "@src-root/hub/components/releaseapproval-grid-releaseinfocell.component";
-import { renderGridApproverInfoCell } from "@src-root/hub/components/releaseapproval-grid-approverinfocell.component";
-import { renderGridActionsCell } from "@src-root/hub/components/releaseapproval-grid-actionscell.component";
+import { renderGridPipelineCell } from "@src-root/hub/components/grid/pipelinecell.component";
+import { renderGridReleaseInfoCell } from "@src-root/hub/components/grid/releaseinfocell.component";
+import { renderGridApproverInfoCell } from "@src-root/hub/components/grid/approverinfocell.component";
+import { renderGridActionsCell } from "@src-root/hub/components/grid/actionscell.component";
 import { Card } from "azure-devops-ui/Card";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
 import { Button } from "azure-devops-ui/Button";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
+import ReleaseApprovalForm from "@src-root/hub/components/form/form.component";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
@@ -27,9 +27,9 @@ export default class ReleaseApprovalGrid extends React.Component {
     private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
     private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
-    private _dialog: React.RefObject<ReleaseApprovalDialog>;
+    private _approvalForm: React.RefObject<ReleaseApprovalForm>;
     private get dialog() {
-        return this._dialog.current as ReleaseApprovalDialog;
+        return this._approvalForm.current as ReleaseApprovalForm;
     }
     private _action: ObservableValue<ReleaseApprovalAction> = new ObservableValue<ReleaseApprovalAction>(ReleaseApprovalAction.Reject);
 
@@ -63,7 +63,7 @@ export default class ReleaseApprovalGrid extends React.Component {
 
     constructor(props: {}) {
         super(props);
-        this._dialog = React.createRef();
+        this._approvalForm = React.createRef();
         this.subscribeEvents();
     }
 
@@ -105,8 +105,8 @@ export default class ReleaseApprovalGrid extends React.Component {
                                 text="Load more..." />
                         </div>
                     </ConditionalChildren>
-                    <ReleaseApprovalDialog
-                        ref={this._dialog}
+                    <ReleaseApprovalForm
+                        ref={this._approvalForm}
                         action={this._action} />
                 </div>
             </div>

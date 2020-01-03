@@ -9,11 +9,11 @@ import { Dropdown } from "azure-devops-ui/Dropdown";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 import { MessageCard, MessageCardSeverity } from "azure-devops-ui/MessageCard";
 
-export interface IDialogDeferredDeploymentProps {
+export interface IFormDeferredDeploymentProps {
     onSelectDate?: (selectedDate?: Date) => void;
 }
 
-export class DialogDeferredDeployment extends React.Component<IDialogDeferredDeploymentProps> {
+export class FormDeferredDeployment extends React.Component<IFormDeferredDeploymentProps> {
 
     private _deferredDeploymentHidden: ObservableValue<boolean> = new ObservableValue<boolean>(true);
 
@@ -27,7 +27,7 @@ export class DialogDeferredDeployment extends React.Component<IDialogDeferredDep
 
     _deferredDeploymentInvalidDate = new ObservableValue<boolean>(false);
 
-    constructor(props: IDialogDeferredDeploymentProps) {
+    constructor(props: IFormDeferredDeploymentProps) {
         super(props);
         this.initializeDefaults();
         initializeIcons();
