@@ -12,6 +12,8 @@ import { DialogDeferredDeployment } from "@src-root/hub/components/dialog-deferr
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
+import { FormItem } from "azure-devops-ui/FormItem";
+import { TextField, TextFieldWidth } from "azure-devops-ui/TextField";
 
 export interface IDialogReleaseListProps {
     action: ObservableValue<ReleaseApprovalAction>;
@@ -19,10 +21,11 @@ export interface IDialogReleaseListProps {
 
 export default class ReleaseApprovalDialog extends React.Component<IDialogReleaseListProps> {
 
-    private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();    
+    private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
     private _isOpen: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _releases?: ArrayItemProvider<ReleaseApproval>;
-    private _deferredDeployment: React.RefObject<DialogDeferredDeployment>;    
+    private _approvalComment = new ObservableValue<string>("");
+    private _deferredDeployment: React.RefObject<DialogDeferredDeployment>;
     private get deferredDeployment() {
         return this._deferredDeployment.current as DialogDeferredDeployment;
     }
@@ -54,7 +57,21 @@ export default class ReleaseApprovalDialog extends React.Component<IDialogReleas
                             onDismiss={this.closeDialog}>
                             <Card
                                 titleProps={{ text: `Confirm that you want to ${this.props.action.value.action} the following releases:` }}>
-                                <DialogReleaseList releases={this._releases} />
+                                <div className="ms-Grid" dir="ltr">
+                                    <div className="ms-Grid-row" style={{ display: "flex", maxHeight: "200px" }}>
+                                        <DialogReleaseList releases={this._releases} />
+                                    </div>
+                                    <div className="ms-Grid-row">
+                                        <FormItem label="Comment:">
+                                            <TextField
+                                                value={this._approvalComment}
+                                                onChange={(e, newValue) => (this._approvalComment.value = newValue)}
+                                                multiline
+                                                rows={4}
+                                                width={TextFieldWidth.auto} />
+                                        </FormItem>
+                                    </div>
+                                </div>
                             </Card>
                             <ConditionalChildren renderChildren={this.props.action.value.allowDefer}>
                                 <DialogDeferredDeployment ref={this._deferredDeployment} />
@@ -66,8 +83,9 @@ export default class ReleaseApprovalDialog extends React.Component<IDialogReleas
     }
 
     openDialog(releases: ArrayItemProvider<ReleaseApproval>): void {
+        this._approvalComment.value = "";
         this._releases = releases;
-        this._isOpen.value = true;        
+        this._isOpen.value = true;
     }
 
     closeDialog = () => {
@@ -82,12 +100,12 @@ export default class ReleaseApprovalDialog extends React.Component<IDialogReleas
             deferredDate = this.deferredDeployment.selectedDate;
         }
         if (this.props.action.value.type == ActionType.Approve) {
-            await this._releaseService.approveAll(this._releases.value, "", deferredDate);
+            await this._releaseService.approveAll(this._releases.value, this._approvalComment.value, deferredDate);
         } else {
-            await this._releaseService.rejectAll(this._releases.value, "");
+            await this._releaseService.rejectAll(this._releases.value, this._approvalComment.value);
         }
         this.closeDialog();
-        ReleaseApprovalEvents.fire(EventType.ClearGridSelection);        
+        ReleaseApprovalEvents.fire(EventType.ClearGridSelection);
         setTimeout(() => ReleaseApprovalEvents.fire(EventType.RefreshGrid), 1000);
     }
 }
