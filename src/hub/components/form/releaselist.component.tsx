@@ -7,13 +7,13 @@ import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
 import { Colors } from "@src-root/hub/model/Colors";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
-export interface IDialogReleaseListProps {
+export interface IFormReleaseListProps {
     releases?: ArrayItemProvider<ReleaseApproval>;
 }
 
-export class DialogReleaseList extends React.Component<IDialogReleaseListProps> {
+export class FormReleaseList extends React.Component<IFormReleaseListProps> {
 
-    constructor(props: IDialogReleaseListProps) {
+    constructor(props: IFormReleaseListProps) {
         super(props);
     }
 

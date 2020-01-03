@@ -14,25 +14,25 @@ export function renderGridApproverInfoCell(
     tableItem: any
 ): JSX.Element {
     const approval: ReleaseApproval = tableItem;
-    return (<ReleaseApprovalGridApproverInfoCell
+    return (<GridApproverInfoCell
         rowIndex={rowIndex}
         columnIndex={columnIndex}
         tableColumn={tableColumn}
         releaseApproval={approval} />);
 }
 
-export interface IReleaseApprovalGridApproverInfoCellProps {
+export interface IGridApproverInfoCellProps {
     releaseApproval: ReleaseApproval;
     rowIndex: number;
     columnIndex: number;
     tableColumn: ITableColumn<{}>;
 }
 
-export default class ReleaseApprovalGridApproverInfoCell extends React.Component<IReleaseApprovalGridApproverInfoCellProps> {
+export default class GridApproverInfoCell extends React.Component<IGridApproverInfoCellProps> {
 
     private _userService: UserService = new UserService();
 
-    constructor(props: IReleaseApprovalGridApproverInfoCellProps) {
+    constructor(props: IGridApproverInfoCellProps) {
         super(props);
     }
 

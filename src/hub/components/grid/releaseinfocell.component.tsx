@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TwoLineTableCell, ITableColumn } from "azure-devops-ui/Table";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
-import { Link } from "azure-devops-ui/Link";
+// import { Link } from "azure-devops-ui/Link";
 import { Icon } from "azure-devops-ui/Icon";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
 import { Colors } from "@src-root/hub/model/Colors";
@@ -14,23 +14,23 @@ export function renderGridReleaseInfoCell(
     tableItem: any
 ): JSX.Element {
     const approval: ReleaseApproval = tableItem;
-    return (<ReleaseApprovalGridReleaseInfoCell
+    return (<GridReleaseInfoCell
         rowIndex={rowIndex}
         columnIndex={columnIndex}
         tableColumn={tableColumn}
         releaseApproval={approval} />);
 }
 
-export interface IReleaseApprovalGridReleaseInfoCellProps {
+export interface IGridReleaseInfoCellProps {
     releaseApproval: ReleaseApproval;
     rowIndex: number;
     columnIndex: number;
     tableColumn: ITableColumn<{}>;
 }
 
-export default class ReleaseApprovalGridReleaseInfoCell extends React.Component<IReleaseApprovalGridReleaseInfoCellProps> {
+export default class GridReleaseInfoCell extends React.Component<IGridReleaseInfoCellProps> {
 
-    constructor(props: IReleaseApprovalGridReleaseInfoCellProps) {
+    constructor(props: IGridReleaseInfoCellProps) {
         super(props);
     }
 
