@@ -15,6 +15,10 @@ This extension allows you to easily view releases that are pending approval for 
 
     ![Deferred deployment screen](img/extension-deferreddeployment-screenshot.png)
 
+    > **Important!!!**
+    >
+    > The date picker field in deferred deployment section has a know issue. The component doesn´t appear with selected Azure DevOps theme. This occurs because this component is from Office UI library and I don´t know how to apply Azure DevOps themes to this library yet. This is a backlog item for next releases.
+
 ## Feature Backlog
 
 This release has minimal functionality to perform approvals, but we are working on more features and enhancements to refine and complete the extension.
