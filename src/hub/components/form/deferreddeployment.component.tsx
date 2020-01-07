@@ -125,7 +125,11 @@ export class FormDeferredDeployment extends React.Component<IFormDeferredDeploym
         return !this._deferredDeploymentInvalidDate.value;
     }
 
-    get selectedDate() {
+    get selectedDate(): Date | null {
         return this.validateDeferredDeploymentDate() ? this._selectedDate : null;
+    }
+
+    get deferredDeploymentEnabled(): boolean {
+        return !this._deferredDeploymentHidden.value;
     }
 }
