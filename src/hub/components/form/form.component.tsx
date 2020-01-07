@@ -96,7 +96,8 @@ export default class ReleaseApprovalForm extends React.Component<IReleaseApprova
     private confirmAction = async () => {
         if (!this._releases) return;
         let deferredDate: Date | null = null;
-        if (this.deferredDeployment.deferredDeploymentEnabled
+        if (this.deferredDeployment
+            && this.deferredDeployment.deferredDeploymentEnabled
             && this.props.action.value.allowDefer) {
             if (!this.deferredDeployment.validateDeferredDeploymentDate()) return;
             deferredDate = this.deferredDeployment.selectedDate;
