@@ -18,11 +18,15 @@ import { ReleaseApproval } from "azure-devops-extension-api/Release";
 import { Button } from "azure-devops-ui/Button";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 import ReleaseApprovalForm from "@src-root/hub/components/form/form.component";
+import { Dropdown } from "azure-devops-ui/Dropdown";
+import { IListBoxItem } from "azure-devops-ui/ListBox";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
+    private _assignedToFilterData: ObservableArray<IListBoxItem> = new ObservableArray<IListBoxItem>([]);
+    private _assignedToFilterSelection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: false });
     private _pageLength: number = 20;
     private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
@@ -92,6 +96,10 @@ export default class ReleaseApprovalGrid extends React.Component {
         this.loadData();
         return (
             <div className="flex-grow">
+                <div className="flex-row">
+                    <Dropdown items={this._assignedToFilterData} selection={this._assignedToFilterSelection} onSelect={this.onAssignedToFilterSelect} />
+                </div>
+
                 <div>
                     <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
                         <Table columns={this._configureGridColumns()}
@@ -122,9 +130,44 @@ export default class ReleaseApprovalGrid extends React.Component {
         }
         const rowShimmer = this.getRowShimmer(1);
         this._tableRowData.push(...rowShimmer);
-        const approvals = await this._releaseService.findApprovals(this._pageLength, continuationToken);
+        let approvals = await this._releaseService.findApprovals(this._pageLength, continuationToken);
         this._hasMoreItems.value = this._pageLength == approvals.length;
         this._tableRowData.pop();
+
+        const allDropdownItem: IListBoxItem = { id: "all", text: "All approvers"};
+
+        let selectedFilter = allDropdownItem;
+        if(this._assignedToFilterSelection.value && this._assignedToFilterSelection.value[0]) {
+            selectedFilter = this._assignedToFilterData.value[this._assignedToFilterSelection.value[0].beginIndex || 0 ]
+        }
+
+        // removeAll also clears the selection of the dropdown!
+        this._assignedToFilterData.removeAll();
+        const dropdownItems: IListBoxItem[] = [ allDropdownItem ];
+
+        for (const approvalElement of approvals) {
+            const approverName = approvalElement.approver.displayName;
+
+            if(dropdownItems.filter((element) => element.id === approverName).length <= 0){
+                dropdownItems.push({ id: approverName, text: approverName});
+            }
+        }
+
+        this._assignedToFilterData.push(...dropdownItems);
+
+        // select the preserved selected filter, as it got cleared by removeAll (there has to be a better solution, i could not find any)
+        for(let i = 0; i < this._assignedToFilterData.length; i++){
+            if(this._assignedToFilterData.value[i].id === selectedFilter.id){
+                this._assignedToFilterSelection.select(i);
+                break;
+            }
+        }
+
+        // filter approvals, if it is not the all item
+        if(selectedFilter && selectedFilter.id !== allDropdownItem.id) {
+            approvals = approvals.filter((a) => a.approver.displayName === selectedFilter.id);
+        }
+
         this._tableRowData.push(...approvals);
     }
 
@@ -193,4 +236,9 @@ export default class ReleaseApprovalGrid extends React.Component {
             message: message
         });
     }
+
+    private onAssignedToFilterSelect = async (event: React.SyntheticEvent<HTMLElement>, item: IListBoxItem<{}>): Promise<void> => {
+        this._tableRowData.removeAll();
+        await this.loadData();
+    };
 }
