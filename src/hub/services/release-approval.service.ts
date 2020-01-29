@@ -11,10 +11,10 @@ export class ReleaseApprovalService {
     async findApprovals(top: number = 50, continuationToken: number = 0): Promise<ReleaseApproval[]> {
         const projectService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);
         const project = await projectService.getProject();
+        const currentUser = SDK.getUser();
         if (!project) return [];
-
         let client: ReleaseRestClient = getClient(ReleaseRestClient);
-        let approvals = await client.getApprovals(project.name, undefined, undefined, undefined, undefined, top, continuationToken);
+        let approvals = await client.getApprovals(project.name, currentUser.id, undefined, undefined, undefined, top, continuationToken, undefined, true);
         return approvals;
     }
 
