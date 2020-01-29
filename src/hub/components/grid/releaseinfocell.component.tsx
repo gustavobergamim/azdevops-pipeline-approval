@@ -5,7 +5,8 @@ import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { Icon } from "azure-devops-ui/Icon";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
 import { Colors } from "@src-root/hub/model/Colors";
-import { ReleaseApproval } from "azure-devops-extension-api/Release";
+import { ReleaseApproval, ApprovalType } from "azure-devops-extension-api/Release";
+import { PillGroup } from "azure-devops-ui/PillGroup";
 
 export function renderGridReleaseInfoCell(
     rowIndex: number,
@@ -39,6 +40,18 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
         const releaseUri = "#";//this.props.releaseApproval.release.url;
         const environmentName = this.props.releaseApproval.releaseEnvironment.name;
         const environmentUri = "#";//this.props.releaseApproval.releaseEnvironment.url;
+        const approvalType = this.props.releaseApproval.approvalType;
+
+        let approvalTypeLabel: string = '';
+        switch (approvalType) {
+            case ApprovalType.PreDeploy:
+                approvalTypeLabel = 'Pre-Deployment';
+                break;
+            case ApprovalType.PostDeploy:
+                approvalTypeLabel = 'Post-Deployment';
+                break;
+        }
+
         return (
             <TwoLineTableCell
                 columnIndex={this.props.columnIndex}
@@ -63,18 +76,20 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
                 line2={
                     <Tooltip text={environmentName} overflowOnly>
                         <span className="fontSize font-size secondary-text flex-row flex-center text-ellipsis">
-                            {/* <Link
-                                className="monospaced-text text-ellipsis flex-row flex-center bolt-table-link bolt-table-inline-link"
-                                excludeTabStop
-                                href={environmentUri}> */}
-                            <Pill
-                                size={PillSize.compact}
-                                variant={PillVariant.colored}
-                                color={Colors.darkRedColor}>
-                                <Icon iconName="ServerEnviroment" className="icon-margin" />
-                                {environmentName}
-                            </Pill>
-                            {/* </Link> */}
+                            <PillGroup className="flex-row">
+                                <Pill
+                                    size={PillSize.compact}
+                                    variant={PillVariant.colored}
+                                    color={Colors.darkRedColor}>
+                                    <Icon iconName="ServerEnviroment" className="icon-margin" />
+                                    {environmentName}
+                                </Pill>
+                                <Pill
+                                    size={PillSize.compact}
+                                    variant={PillVariant.outlined}>
+                                    {approvalTypeLabel}
+                                </Pill>
+                            </PillGroup>
                         </span>
                     </Tooltip>
                 } />
