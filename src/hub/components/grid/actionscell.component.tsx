@@ -37,7 +37,7 @@ export default class GridActionsCell extends React.Component<IGridActionsCellPro
             <SimpleTableCell
                 columnIndex={this.props.columnIndex}
                 tableColumn={this.props.tableColumn}
-                key={"col-" + this.props.columnIndex}>
+                key={`col-actions-${this.props.columnIndex}-${this.props.rowIndex}`}>
                 <ButtonGroup>
                     <Button
                         key={"btn-approve-" + this.props.releaseApproval.id}
