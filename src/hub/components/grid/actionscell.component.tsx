@@ -13,6 +13,7 @@ export function renderGridActionsCell(
 ): JSX.Element {
     const approval: ReleaseApproval = tableItem;
     return (<GridActionsCell
+        key={`col-actions-${columnIndex}-${rowIndex}`}
         rowIndex={rowIndex}
         columnIndex={columnIndex}
         tableColumn={tableColumn}

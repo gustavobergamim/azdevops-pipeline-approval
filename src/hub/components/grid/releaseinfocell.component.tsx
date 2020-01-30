@@ -16,6 +16,7 @@ export function renderGridReleaseInfoCell(
 ): JSX.Element {
     const approval: ReleaseApproval = tableItem;
     return (<GridReleaseInfoCell
+        key={`col-release-${columnIndex}-${rowIndex}`}
         rowIndex={rowIndex}
         columnIndex={columnIndex}
         tableColumn={tableColumn}
