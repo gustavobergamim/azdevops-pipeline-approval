@@ -13,6 +13,7 @@ export function renderGridPipelineCell(
 ): JSX.Element {
     const approval: ReleaseApproval = tableItem;
     return (<GridPipelineCell
+        key={`col-pipeline-${columnIndex}-${rowIndex}`}
         rowIndex={rowIndex}
         columnIndex={columnIndex}
         tableColumn={tableColumn}
@@ -39,7 +40,7 @@ export default class GridPipelineCell extends React.Component<IGridPipelineCellP
             <SimpleTableCell
                 columnIndex={this.props.columnIndex}
                 tableColumn={this.props.tableColumn}
-                key={"col-" + this.props.columnIndex}
+                key={`col-pipeline-${this.props.columnIndex}-${this.props.rowIndex}`}
                 contentClassName="fontWeightSemiBold font-weight-semibold fontSizeM font-size-m scroll-hidden">
                 <Tooltip overflowOnly={true}>
                     {/* <Link

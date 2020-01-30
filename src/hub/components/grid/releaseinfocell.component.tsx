@@ -56,7 +56,7 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
             <TwoLineTableCell
                 columnIndex={this.props.columnIndex}
                 tableColumn={this.props.tableColumn}
-                key={"col-" + this.props.columnIndex}
+                key={`col-release-${this.props.columnIndex}-${this.props.rowIndex}`}
                 className="bolt-table-cell-content-with-inline-link no-v-padding"
                 line1={
                     <span className="flex-row scroll-hidden">
