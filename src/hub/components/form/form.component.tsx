@@ -11,7 +11,7 @@ import { FormDeferredDeployment } from "@src-root/hub/components/form/deferredde
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
-import { FormItem } from "azure-devops-ui/FormItem";
+import { FormItem, FormItemContext } from "azure-devops-ui/FormItem";
 import { TextField, TextFieldWidth } from "azure-devops-ui/TextField";
 
 export interface IReleaseApprovalFormProps {
