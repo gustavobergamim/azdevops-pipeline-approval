@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "serverId": "azuredevopsextensions-sonarcloud",
+        "projectKey": "pipeline-approval"
+      }
+}
