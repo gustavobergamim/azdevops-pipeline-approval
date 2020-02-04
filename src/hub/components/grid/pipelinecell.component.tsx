@@ -2,7 +2,6 @@ import * as React from "react";
 import { ITableColumn, SimpleTableCell } from "azure-devops-ui/Table";
 import { Status, Statuses, StatusSize } from "azure-devops-ui/Status";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
-// import { Link } from "azure-devops-ui/Link";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
 
 export function renderGridPipelineCell(
@@ -35,7 +34,6 @@ export default class GridPipelineCell extends React.Component<IGridPipelineCellP
 
     render(): JSX.Element {
         const releaseDefinitionName = this.props.releaseApproval.releaseDefinition.name;
-        const releaseDefinitionUri = "#";//this.props.releaseApproval.releaseDefinition.url;
         return (
             <SimpleTableCell
                 columnIndex={this.props.columnIndex}
@@ -43,10 +41,6 @@ export default class GridPipelineCell extends React.Component<IGridPipelineCellP
                 key={`col-pipeline-${this.props.columnIndex}-${this.props.rowIndex}`}
                 contentClassName="fontWeightSemiBold font-weight-semibold fontSizeM font-size-m scroll-hidden">
                 <Tooltip overflowOnly={true}>
-                    {/* <Link
-                        className="fontSizeM font-size-m text-ellipsis bolt-table-link bolt-table-inline-link"
-                        excludeTabStop
-                        href={releaseDefinitionUri}> */}
                     <span className="fontSizeM font-size-m text-ellipsis bolt-table-link bolt-table-inline-link">
                         <Status
                             {...Statuses.Waiting}
@@ -54,7 +48,6 @@ export default class GridPipelineCell extends React.Component<IGridPipelineCellP
                             className="icon-large-margin"
                             size={StatusSize.m} />
                         {releaseDefinitionName}
-                        {/* </Link> */}
                     </span>
                 </Tooltip>
             </SimpleTableCell>

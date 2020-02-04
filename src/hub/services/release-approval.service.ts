@@ -44,8 +44,7 @@ export class ReleaseApprovalService {
     }
 
     async approveAll(approvals: ReleaseApproval[], comment: string, deferredDate?: Date | null): Promise<void> {
-        await approvals.forEach(async (approval: ReleaseApproval, index: number) =>
-            await this.approve(approval, comment, deferredDate));
+        approvals.forEach(async (approval: ReleaseApproval, index: number) => await this.approve(approval, comment, deferredDate));
     }
 
     async approve(approval: ReleaseApproval, comment: string, deferredDate?: Date | null): Promise<void> {
@@ -56,8 +55,7 @@ export class ReleaseApprovalService {
     }
 
     async rejectAll(approvals: ReleaseApproval[], comment: string): Promise<void> {
-        await approvals.forEach(async (approval: ReleaseApproval, index: number) =>
-            await this.reject(approval, comment));
+        approvals.forEach(async (approval: ReleaseApproval, index: number) => await this.reject(approval, comment));
     }
 
     async reject(approval: ReleaseApproval, comment: string): Promise<void> {

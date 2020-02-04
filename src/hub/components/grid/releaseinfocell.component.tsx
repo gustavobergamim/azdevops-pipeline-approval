@@ -1,7 +1,6 @@
 import * as React from "react";
 import { TwoLineTableCell, ITableColumn } from "azure-devops-ui/Table";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
-// import { Link } from "azure-devops-ui/Link";
 import { Icon } from "azure-devops-ui/Icon";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
 import { Colors } from "@src-root/hub/model/Colors";
@@ -38,9 +37,7 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
 
     render(): JSX.Element {
         const releaseName = this.props.releaseApproval.release.name;
-        const releaseUri = "#";//this.props.releaseApproval.release.url;
         const environmentName = this.props.releaseApproval.releaseEnvironment.name;
-        const environmentUri = "#";//this.props.releaseApproval.releaseEnvironment.url;
         const approvalType = this.props.releaseApproval.approvalType;
 
         let approvalTypeLabel: string = '';
@@ -63,13 +60,8 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
                     <span className="flex-row scroll-hidden">
                         <Tooltip text={releaseName} overflowOnly>
                             <span className="fontSize font-size secondary-text flex-row flex-center text-ellipsis">
-                                {/* <Link
-                                className="fontSizeM font-size-m text-ellipsis bolt-table-link bolt-table-inline-link"
-                                excludeTabStop
-                                href={releaseUri}> */}
                                 <Icon iconName="ProductRelease" />
                                 {releaseName}
-                                {/* </Link> */}
                             </span>
                         </Tooltip>
                     </span>
