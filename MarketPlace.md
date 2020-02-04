@@ -29,7 +29,7 @@ Here are some features we're working on. Feel free to suggest any other feature.
 * **Sortable columns:** allows to sort items.
 * **UI improvements**:
   * add theme support for deferred deployment date picker.
-
+  * add stage grouping (Issue #30)
 
 ## Pipeline
 
