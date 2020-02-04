@@ -3,9 +3,9 @@ import * as ReactDOM from "react-dom";
 import * as SDK from "azure-devops-extension-sdk";
 import { Header, TitleSize } from "azure-devops-ui/Header";
 import { Page } from "azure-devops-ui/Page";
-import ReleaseApprovalGrid from "@src-root/hub/components/grid/grid.component";
+import ReleaseApprovalGrid from "@src-root/hub/components/grid/releaseapprovalgrid.component";
 import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
-import { ReleaseApprovalEvents, EventType } from "./model/ReleaseApprovalEvents";
+import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
 
 class Hub extends React.Component<{}> {
 

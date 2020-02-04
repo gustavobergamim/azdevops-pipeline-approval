@@ -59,7 +59,7 @@ export default class ReleaseApprovalGrid extends React.Component {
                 width: 150
             }
         ]
-    };
+    }
 
     constructor(props: {}) {
         super(props);
