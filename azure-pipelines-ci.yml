@@ -1,6 +1,30 @@
 name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
-trigger: none
+trigger:
+  batch: true
+  branches:
+    master
+    develop
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+      master
+      develop
+
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - develop
+- cron: "0 12 * * 0"
+  displayName: Weekly Sunday build
+  branches:
+    include:
+    - master
+  always: true
 
 pool:
   vmImage: 'ubuntu-16.04'

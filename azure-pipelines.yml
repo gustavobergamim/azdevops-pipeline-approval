@@ -2,6 +2,8 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)_v$(Ex
 
 trigger: none
 
+pr: none
+
 stages:
 - stage: ExtensionBuild
   displayName: 'Build and pack'
