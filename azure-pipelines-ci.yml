@@ -3,8 +3,9 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   batch: true
   branches:
-  - master
-  - develop
+    include:
+    - master
+    - develop
 
 pr:
   autoCancel: true
