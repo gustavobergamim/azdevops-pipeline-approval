@@ -1,0 +1,32 @@
+parameters:
+  - name: environment
+    type: string
+  - name: vsixFile
+    type: string
+  - name: shareWith
+    type: string
+    default: ''
+
+stages:
+- stage: ExtensionPublish${{parameters.environment}}
+  displayName: '${{parameters.environment}} Publish'
+  jobs:
+  - deployment: Publish
+    pool:
+      vmImage: 'ubuntu-16.04'
+    environment: ${{parameters.environment}}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@2
+            displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.6.x'
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-extension-build-task.PublishAzureDevOpsExtension@2
+            displayName: 'Publish Extension'
+            inputs:
+              connectedServiceName: 'VS MarketPlace'
+              fileType: vsix
+              vsixFile: ${{parameters.vsixFile}}
+              extensionVersion: $(ExtensionVersion)
+              ${{ if ne(parameters.shareWith, '') }}:
+                arguments: --share-with ${{parameters.shareWith}}
