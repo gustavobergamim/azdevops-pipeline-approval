@@ -10,16 +10,16 @@ stages:
     pool:
       vmImage: 'ubuntu-16.04'
     steps:
-    - template: azure-pipelines/build-steps.yaml
+    - template: azure-pipelines/build-steps.yml
       parameters:
         packQA: true
         publishOutput: true
-- template: azure-pipelines/marketplace-publish.yaml
+- template: azure-pipelines/marketplace-publish.yml
   parameters:
     environment: QA
     vsixFile: '$(Agent.BuildDirectory)/drop/qa/gustavobergamim.pipeline-approval-qa-*.vsix'
     shareWith: 'gustavobergamim vstssprints'
-- template: azure-pipelines/marketplace-publish.yaml
+- template: azure-pipelines/marketplace-publish.yml
   parameters:
     environment: Production
     vsixFile: '$(Agent.BuildDirectory)/drop/prod/gustavobergamim.pipeline-approval-*.vsix'
