@@ -36,4 +36,4 @@ steps:
     targetFolder: '$(Build.ArtifactStagingDirectory)'
 - task: PublishBuildArtifacts@1
   displayName: 'Publishing artifacts'
-  condition: ${{parameters.publishOutput}
+  condition: ${{parameters.publishOutput}}
