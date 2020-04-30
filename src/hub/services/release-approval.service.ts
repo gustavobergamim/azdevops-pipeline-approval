@@ -4,10 +4,6 @@ import { getClient, IProjectPageService, CommonServiceIds } from "azure-devops-e
 
 export class ReleaseApprovalService {
 
-    constructor() {
-        // SDK.init();
-    }
-
     async findApprovals(top: number = 50, continuationToken: number = 0): Promise<ReleaseApproval[]> {
         const projectService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);
         const project = await projectService.getProject();

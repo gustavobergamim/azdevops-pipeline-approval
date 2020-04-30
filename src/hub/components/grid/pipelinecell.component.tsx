@@ -3,6 +3,7 @@ import { ITableColumn, SimpleTableCell } from "azure-devops-ui/Table";
 import { Status, Statuses, StatusSize } from "azure-devops-ui/Status";
 import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { ReleaseApproval } from "azure-devops-extension-api/Release";
+import { Link } from "azure-devops-ui/Link";
 
 export function renderGridPipelineCell(
     rowIndex: number,
@@ -33,7 +34,9 @@ export default class GridPipelineCell extends React.Component<IGridPipelineCellP
     }
 
     render(): JSX.Element {
-        const releaseDefinitionName = this.props.releaseApproval.releaseDefinition.name;
+        const releaseDefinition = this.props.releaseApproval.releaseDefinition;
+        const releaseDefinitionName = releaseDefinition.name;
+        const link = releaseDefinition._links && releaseDefinition._links.web ? releaseDefinition._links.web.href : '';
         return (
             <SimpleTableCell
                 columnIndex={this.props.columnIndex}
@@ -42,12 +45,14 @@ export default class GridPipelineCell extends React.Component<IGridPipelineCellP
                 contentClassName="fontWeightSemiBold font-weight-semibold fontSizeM font-size-m scroll-hidden">
                 <Tooltip overflowOnly={true}>
                     <span className="fontSizeM font-size-m text-ellipsis bolt-table-link bolt-table-inline-link">
-                        <Status
-                            {...Statuses.Waiting}
-                            key="waiting"
-                            className="icon-large-margin"
-                            size={StatusSize.m} />
-                        {releaseDefinitionName}
+                        <Link href={link} target="_blank">
+                            <Status
+                                {...Statuses.Waiting}
+                                key="waiting"
+                                className="icon-large-margin"
+                                size={StatusSize.m} />
+                            {releaseDefinitionName}
+                        </Link>
                     </span>
                 </Tooltip>
             </SimpleTableCell>

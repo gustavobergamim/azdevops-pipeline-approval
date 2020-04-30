@@ -6,6 +6,7 @@ import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
 import { Colors } from "@src-root/hub/model/Colors";
 import { ReleaseApproval, ApprovalType } from "azure-devops-extension-api/Release";
 import { PillGroup } from "azure-devops-ui/PillGroup";
+import { Link } from "azure-devops-ui/Link";
 
 export function renderGridReleaseInfoCell(
     rowIndex: number,
@@ -36,8 +37,14 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
     }
 
     render(): JSX.Element {
-        const releaseName = this.props.releaseApproval.release.name;
-        const environmentName = this.props.releaseApproval.releaseEnvironment.name;
+        const release = this.props.releaseApproval.release;
+        const releaseName = release.name;
+        const releaseLink = release._links && release._links.web ? release._links.web.href : '';
+
+        const releaseEnvironment = this.props.releaseApproval.releaseEnvironment;
+        const releaseEnvironmentName = releaseEnvironment.name;
+        const releaseEnvironmentLink = releaseEnvironment._links && releaseEnvironment._links.web ? releaseEnvironment._links.web.href : '';
+
         const approvalType = this.props.releaseApproval.approvalType;
 
         let approvalTypeLabel: string = '';
@@ -60,22 +67,29 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
                     <span className="flex-row scroll-hidden">
                         <Tooltip text={releaseName} overflowOnly>
                             <span className="fontSize font-size secondary-text flex-row flex-center text-ellipsis">
-                                <Icon iconName="ProductRelease" />
-                                {releaseName}
+                                <Link href={releaseLink} target="_blank">
+                                    <Icon iconName="ProductRelease" />
+                                    {releaseName}
+                                </Link>
                             </span>
                         </Tooltip>
                     </span>
                 }
                 line2={
-                    <Tooltip text={environmentName} overflowOnly>
+                    <Tooltip text={releaseEnvironmentName} overflowOnly>
                         <span className="fontSize font-size secondary-text flex-row flex-center text-ellipsis">
                             <PillGroup className="flex-row">
                                 <Pill
                                     size={PillSize.compact}
                                     variant={PillVariant.colored}
-                                    color={Colors.darkRedColor}>
+                                    color={Colors.darkRedColor}
+                                    onClick={() => {
+                                        if (releaseEnvironmentLink) {
+                                            window.open(releaseEnvironmentLink, "_blank");
+                                        }
+                                    }}>
                                     <Icon iconName="ServerEnviroment" className="icon-margin" />
-                                    {environmentName}
+                                    {releaseEnvironmentName}
                                 </Pill>
                                 <Pill
                                     size={PillSize.compact}
@@ -84,7 +98,7 @@ export default class GridReleaseInfoCell extends React.Component<IGridReleaseInf
                                 </Pill>
                             </PillGroup>
                         </span>
-                    </Tooltip>
+                    </ Tooltip>
                 } />
         );
     }

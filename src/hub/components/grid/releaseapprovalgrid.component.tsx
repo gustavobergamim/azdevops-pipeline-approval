@@ -18,10 +18,12 @@ import { ReleaseApproval } from "azure-devops-extension-api/Release";
 import { Button } from "azure-devops-ui/Button";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 import ReleaseApprovalForm from "@src-root/hub/components/form/form.component";
+import { ReleaseService } from "@src-root/hub/services/release.service";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
-    private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
+    private _approvalsService: ReleaseApprovalService = new ReleaseApprovalService();
+    private _releaseService: ReleaseService = new ReleaseService();
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
     private _pageLength: number = 20;
     private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
@@ -122,10 +124,15 @@ export default class ReleaseApprovalGrid extends React.Component {
         }
         const rowShimmer = this.getRowShimmer(1);
         this._tableRowData.push(...rowShimmer);
-        const approvals = await this._releaseService.findApprovals(this._pageLength, continuationToken);
+        const approvals = await this._approvalsService.findApprovals(this._pageLength, continuationToken);
+        const promises = approvals.map(async a => {
+            await this._releaseService.getLinks(a);
+
+        });
+        await Promise.all(promises);
         this._hasMoreItems.value = this._pageLength == approvals.length;
         this._tableRowData.pop();
-        this._tableRowData.push(...approvals);
+        this._tableRowData.push(...approvals.filter(a => this._tableRowData.value.every(x => x.id !== a.id)));
     }
 
     private getRowShimmer(length: number): any[] {
