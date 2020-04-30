@@ -25,7 +25,6 @@
     }
   },
   "dependencies": {
-    "@uifabric/azure-themes": "^7.0.70",
     "azure-devops-extension-api": "1.153.2",
     "azure-devops-extension-sdk": "^2.0.11",
     "azure-devops-ui": "^2.166.2",
