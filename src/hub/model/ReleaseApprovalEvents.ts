@@ -6,7 +6,8 @@ export declare const enum EventType {
     RejectSingleRelease = 2,
     RejectAllReleases = 3,
     ApproveSingleRelease = 4,
-    ApproveAllReleases = 5
+    ApproveAllReleases = 5,
+    GridRowSelectionChanged = 6
 }
 
 export namespace ReleaseApprovalEvents {
