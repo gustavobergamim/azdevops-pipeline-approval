@@ -27,16 +27,30 @@ import { DropdownFilterBarItem } from "azure-devops-ui/Dropdown";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { DropdownSelection, DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 import { from } from "linq";
+import { Button } from "azure-devops-ui/Button";
 
-export default class ReleaseApprovalGrid extends React.Component {
+export interface IReleaseApprovalGridProps {
+    filtersEnabled: boolean;
+}
+
+export default class ReleaseApprovalGrid extends React.Component<IReleaseApprovalGridProps> {
 
     private _approvalsService: ReleaseApprovalService = new ReleaseApprovalService();
     private _releaseService: ReleaseService = new ReleaseService();
+
     private _approvals: ReleaseApproval[] = [];
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
+    // <NOFILTER>
+    private _pageLength: number = 2;
+    private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+    // </NOFILTER>
+    // <FILTER>
     private _tableHasData: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+    // </FILTER>
+
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
     private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
+
     private _approvalForm: React.RefObject<ReleaseApprovalForm>;
     private _action: ObservableValue<ReleaseApprovalAction> = new ObservableValue<ReleaseApprovalAction>(ReleaseApprovalAction.Reject);
 
@@ -84,10 +98,12 @@ export default class ReleaseApprovalGrid extends React.Component {
         ]
     }
 
-    constructor(props: {}) {
+    constructor(props: IReleaseApprovalGridProps) {
         super(props);
         this._approvalForm = React.createRef();
-        this.initFilters();
+        if (this.props.filtersEnabled) {
+            this.initFilters();
+        }
         this.subscribeEvents();
     }
 
@@ -121,7 +137,7 @@ export default class ReleaseApprovalGrid extends React.Component {
         return (
             <div className="flex-grow">
                 <div>
-                    <ConditionalChildren renderChildren={this._tableHasData}>
+                    <ConditionalChildren renderChildren={this.props.filtersEnabled && this._tableHasData}>
                         <FilterBar className="filter-bar"
                             filter={this._filter}>
                             <DropdownFilterBarItem
@@ -155,6 +171,13 @@ export default class ReleaseApprovalGrid extends React.Component {
                             itemProvider={this._tableRowData}
                             selection={this._selection} />
                     </Card>
+                    <ConditionalChildren renderChildren={!this.props.filtersEnabled && this._hasMoreItems}>
+                        <div style={{ marginTop: "10px" }}>
+                            <Button
+                                onClick={this.loadData}
+                                text="Load more..." />
+                        </div>
+                    </ConditionalChildren>
                     <ReleaseApprovalForm
                         ref={this._approvalForm}
                         action={this._action} />
@@ -164,6 +187,34 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     private loadData = async () => {
+        if (this.props.filtersEnabled) {
+            await this.loadDataForFilter();
+        } else {
+            await this.loadDataOnDemand();
+        }
+    }
+
+    private loadDataOnDemand = async () => {
+        let continuationToken = 0;
+        const lastIndex = this._tableRowData.value.length - 1;
+        if (lastIndex >= 0) {
+            const lastItem = this._tableRowData.value[lastIndex];
+            continuationToken = lastItem.id - 1;
+        }
+        const rowShimmer = this.getRowShimmer(1);
+        this._tableRowData.push(...rowShimmer);
+        const approvals = await this._approvalsService.findApprovals(this._pageLength, continuationToken);
+        const promises = approvals.map(async a => {
+            await this._releaseService.getLinks(a);
+
+        });
+        await Promise.all(promises);
+        this._hasMoreItems.value = this._pageLength == approvals.length;
+        this._tableRowData.pop();
+        this._tableRowData.push(...approvals.filter(a => this._tableRowData.value.every(x => x.id !== a.id)));
+    }
+
+    private loadDataForFilter = async () => {
         this._approvals = [];
         this._tableRowData.removeAll();
         const rowShimmer = this.getRowShimmer(1);
@@ -177,13 +228,11 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     private initFilters() {
-        const context = this;
         this._filter.setFilterItemState("releaseApprovalFilter", {
             value: [],
             operator: FilterOperatorType.and
         });
-        this._filter.subscribe(() =>
-            context.filterData(context), FILTER_CHANGE_EVENT);
+        this._filter.subscribe(this.filterData, FILTER_CHANGE_EVENT);
         this._approvalTypeFilter.push(
             {
                 id: ApprovalType.PreDeploy.toString(),
@@ -234,27 +283,27 @@ export default class ReleaseApprovalGrid extends React.Component {
         }));
     }
 
-    private filterData(context: ReleaseApprovalGrid) {
-        const filterState = context._filter.getState();
-        let approvals = from(context._approvals);
+    private filterData = () => {
+        const filterState = this._filter.getState();
+        let approvals = from(this._approvals);
 
-        const filterReleaseState = filterState[context.FilterRelease];
+        const filterReleaseState = filterState[this.FilterRelease];
         const filterReleases = from(filterReleaseState && filterReleaseState.value ? filterReleaseState.value : []);
         if (filterReleases.any()) {
             approvals = approvals.where(a => filterReleases.any(r => Number(r) == a.releaseDefinition.id));
         }
-        const filterStageState = filterState[context.FilterStage];
+        const filterStageState = filterState[this.FilterStage];
         const filterStages = from(filterStageState && filterStageState.value ? filterStageState.value : []);
         if (filterStages.any()) {
             approvals = approvals.where(a => filterStages.any(s => s.toString() == a.releaseEnvironment.name));
         }
-        const filterTypeState = filterState[context.FilterType];
+        const filterTypeState = filterState[this.FilterType];
         const filterTypes = from(filterTypeState && filterTypeState.value ? filterTypeState.value : []);
         if (filterTypes.any()) {
             approvals = approvals.where(a => filterTypes.any(t => Number(t) == a.approvalType));
         }
-        context._tableRowData.removeAll();
-        context._tableRowData.push(...approvals.toArray());
+        this._tableRowData.removeAll();
+        this._tableRowData.push(...approvals.toArray());
     }
 
     private getRowShimmer(length: number): any[] {
