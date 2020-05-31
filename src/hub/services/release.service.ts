@@ -15,6 +15,7 @@ export class ReleaseService {
         const promises = releaseDefinitionsIds.map(async id => await client.getDeployments(project.name, id, undefined
             , undefined, undefined, undefined, DeploymentStatus.NotDeployed, DeploymentOperationStatus.Pending));
         const deploymentsMatrix = await Promise.all(promises);
+        if(deploymentsMatrix.length === 0) return;
 
         const deployments = deploymentsMatrix.reduce((acumulator, current) => acumulator.concat(current));
         if (!deployments) return;

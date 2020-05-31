@@ -28,6 +28,7 @@
     "azure-devops-extension-api": "1.153.2",
     "azure-devops-extension-sdk": "^2.0.11",
     "azure-devops-ui": "^2.166.2",
+    "linq": "^3.2.2",
     "office-ui-fabric-react": "^7.110.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"

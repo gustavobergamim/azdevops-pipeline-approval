@@ -16,37 +16,45 @@ import { renderGridReleaseInfoCell } from "@src-root/hub/components/grid/release
 import { renderGridApproverInfoCell } from "@src-root/hub/components/grid/approverinfocell.component";
 import { renderGridActionsCell } from "@src-root/hub/components/grid/actionscell.component";
 import { Card } from "azure-devops-ui/Card";
-import { ReleaseApproval } from "azure-devops-extension-api/Release";
-import { Button } from "azure-devops-ui/Button";
+import { ReleaseApproval, ApprovalType } from "azure-devops-extension-api/Release";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 import ReleaseApprovalForm from "@src-root/hub/components/form/form.component";
 import { ReleaseService } from "@src-root/hub/services/release.service";
 
 import { FilterBar } from "azure-devops-ui/FilterBar";
-import { Filter, FILTER_CHANGE_EVENT, FilterOperatorType } from "azure-devops-ui/Utilities/Filter";
-import { KeywordFilterBarItem } from "azure-devops-ui/TextFilterBarItem";
+import { Filter, FilterOperatorType, FILTER_CHANGE_EVENT, IFilterState } from "azure-devops-ui/Utilities/Filter";
 import { DropdownFilterBarItem } from "azure-devops-ui/Dropdown";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
-import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
+import { DropdownSelection, DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
+import { from } from "linq";
 
 export default class ReleaseApprovalGrid extends React.Component {
 
     private _approvalsService: ReleaseApprovalService = new ReleaseApprovalService();
     private _releaseService: ReleaseService = new ReleaseService();
+    private _approvals: ReleaseApproval[] = [];
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
-    // private _pageLength: number = 20;
-    // private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+    private _tableHasData: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
     private _selectedReleases: ArrayItemProvider<ReleaseApproval> = new ArrayItemProvider<ReleaseApproval>([]);
     private _approvalForm: React.RefObject<ReleaseApprovalForm>;
+    private _action: ObservableValue<ReleaseApprovalAction> = new ObservableValue<ReleaseApprovalAction>(ReleaseApprovalAction.Reject);
+
+    private _filter: Filter = new Filter();
+    private readonly FilterRelease = "release";
+    private _releaseFilterSelection = new DropdownMultiSelection();
+    private _releaseFilter: ObservableArray<IListBoxItem<string>> = new ObservableArray<IListBoxItem<string>>([]);
+    private readonly FilterStage = "stage";
+    private _stagesFilterSelection = new DropdownSelection();
+    private _stagesFilter: ObservableArray<IListBoxItem<string>> = new ObservableArray<IListBoxItem<string>>([]);
+    private readonly FilterType = "type";
+    private _approvalTypeFilterSelection = new DropdownSelection();
+    private _approvalTypeFilter: ObservableArray<IListBoxItem<string>> = new ObservableArray<IListBoxItem<string>>([]);
+
+
     private get dialog() {
         return this._approvalForm.current as ReleaseApprovalForm;
     }
-    private _action: ObservableValue<ReleaseApprovalAction> = new ObservableValue<ReleaseApprovalAction>(ReleaseApprovalAction.Reject);
-
-    private _filter: Filter;
-    private _selectionSingleList = new DropdownSelection();
-    private _stagesFilter: ObservableArray<IListBoxItem<string>> = new ObservableArray<IListBoxItem<string>>([]);
 
     private _configureGridColumns(): ITableColumn<{}>[] {
         return [
@@ -79,7 +87,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     constructor(props: {}) {
         super(props);
         this._approvalForm = React.createRef();
-        this._filter = new Filter();
+        this.initFilters();
         this.subscribeEvents();
     }
 
@@ -113,27 +121,40 @@ export default class ReleaseApprovalGrid extends React.Component {
         return (
             <div className="flex-grow">
                 <div>
-                    <FilterBar className="filter-bar" filter={this._filter}>
-                        <DropdownFilterBarItem
-                            filterItemKey="stage"
-                            filter={this._filter}
-                            items={this._stagesFilter}
-                            selection={this._selectionSingleList}
-                            placeholder="Stage"
-                        />
-                    </FilterBar>
+                    <ConditionalChildren renderChildren={this._tableHasData}>
+                        <FilterBar className="filter-bar"
+                            filter={this._filter}>
+                            <DropdownFilterBarItem
+                                filterItemKey={this.FilterRelease}
+                                filter={this._filter}
+                                items={this._releaseFilter}
+                                selection={this._releaseFilterSelection}
+                                placeholder="Release"
+                                hideClearAction={true}
+                            />
+                            <DropdownFilterBarItem
+                                filterItemKey={this.FilterStage}
+                                filter={this._filter}
+                                items={this._stagesFilter}
+                                selection={this._stagesFilterSelection}
+                                placeholder="Stage"
+                                hideClearAction={true}
+                            />
+                            <DropdownFilterBarItem
+                                filterItemKey={this.FilterType}
+                                filter={this._filter}
+                                items={this._approvalTypeFilter}
+                                selection={this._approvalTypeFilterSelection}
+                                placeholder="Type"
+                                hideClearAction={true}
+                            />
+                        </FilterBar>
+                    </ConditionalChildren>
                     <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
                         <Table columns={this._configureGridColumns()}
                             itemProvider={this._tableRowData}
                             selection={this._selection} />
                     </Card>
-                    {/* <ConditionalChildren renderChildren={this._hasMoreItems}>
-                        <div style={{ marginTop: "10px" }}>
-                            <Button
-                                onClick={this.loadData}
-                                text="Load more..." />
-                        </div>
-                    </ConditionalChildren> */}
                     <ReleaseApprovalForm
                         ref={this._approvalForm}
                         action={this._action} />
@@ -143,23 +164,64 @@ export default class ReleaseApprovalGrid extends React.Component {
     }
 
     private loadData = async () => {
-        // let continuationToken = 0;
-        // const lastIndex = this._tableRowData.value.length - 1;
-        // if (lastIndex >= 0) {
-        //     const lastItem = this._tableRowData.value[lastIndex];
-        //     continuationToken = lastItem.id - 1;
-        // }
+        this._approvals = [];
+        this._tableRowData.removeAll();
         const rowShimmer = this.getRowShimmer(1);
         this._tableRowData.push(...rowShimmer);
-        const approvals = await this._approvalsService.findAllApprovals();
-        await this._releaseService.fillLinks(approvals);
-        // this._hasMoreItems.value = false; // this._pageLength == approvals.length;
+        this._approvals = await this._approvalsService.findAllApprovals();
+        await this._releaseService.fillLinks(this._approvals);
         this._tableRowData.pop();
-        this._tableRowData.push(...approvals.filter(a => this._tableRowData.value.every(x => x.id !== a.id)));
+        this._tableRowData.push(...this._approvals);
+        this._tableHasData.value = this._approvals.length > 0;
         this.updateFilters();
     }
 
+    private initFilters() {
+        const context = this;
+        this._filter.setFilterItemState("releaseApprovalFilter", {
+            value: [],
+            operator: FilterOperatorType.and
+        });
+        this._filter.subscribe(() =>
+            context.filterData(context), FILTER_CHANGE_EVENT);
+        this._approvalTypeFilter.push(
+            {
+                id: ApprovalType.PreDeploy.toString(),
+                text: 'Pre-Deployment'
+            },
+            {
+                id: ApprovalType.PostDeploy.toString(),
+                text: 'Post-Deployment'
+            }
+        );
+    }
+
     private updateFilters() {
+        this._filter.reset();
+        this.updateReleasesFilter();
+        this.updateStagesFilter();
+    }
+
+    private updateReleasesFilter() {
+        let releaseDefinitions = this._tableRowData.value.map(a => a.releaseDefinition);
+        releaseDefinitions = releaseDefinitions.filter((definition, index) =>
+            releaseDefinitions.findIndex(def => def.id === definition.id) === index);
+        this._releaseFilter.removeAll();
+        this._releaseFilter.push(...releaseDefinitions.map(definition => {
+            return {
+                id: definition.id.toString(),
+                text: definition.name,
+                iconProps: { iconName: "Rocket" }
+            };
+        }));
+        this._releaseFilter.push({
+            id: '999999',
+            text: 'TESTE',
+            iconProps: { iconName: "Rocket" }
+        });
+    }
+
+    private updateStagesFilter() {
         let stages = this._tableRowData.value.map(a => a.releaseEnvironment.name);
         stages = stages.filter((stage, index) => stages.indexOf(stage) === index);
         this._stagesFilter.removeAll();
@@ -170,6 +232,29 @@ export default class ReleaseApprovalGrid extends React.Component {
                 iconProps: { iconName: "ServerEnviroment" }
             };
         }));
+    }
+
+    private filterData(context: ReleaseApprovalGrid) {
+        const filterState = context._filter.getState();
+        let approvals = from(context._approvals);
+
+        const filterReleaseState = filterState[context.FilterRelease];
+        const filterReleases = from(filterReleaseState && filterReleaseState.value ? filterReleaseState.value : []);
+        if (filterReleases.any()) {
+            approvals = approvals.where(a => filterReleases.any(r => Number(r) == a.releaseDefinition.id));
+        }
+        const filterStageState = filterState[context.FilterStage];
+        const filterStages = from(filterStageState && filterStageState.value ? filterStageState.value : []);
+        if (filterStages.any()) {
+            approvals = approvals.where(a => filterStages.any(s => s.toString() == a.releaseEnvironment.name));
+        }
+        const filterTypeState = filterState[context.FilterType];
+        const filterTypes = from(filterTypeState && filterTypeState.value ? filterTypeState.value : []);
+        if (filterTypes.any()) {
+            approvals = approvals.where(a => filterTypes.any(t => Number(t) == a.approvalType));
+        }
+        context._tableRowData.removeAll();
+        context._tableRowData.push(...approvals.toArray());
     }
 
     private getRowShimmer(length: number): any[] {
@@ -222,7 +307,7 @@ export default class ReleaseApprovalGrid extends React.Component {
     private getSelectedReleases(): void {
         this._selectedReleases = new ArrayItemProvider<ReleaseApproval>([]);
         let releases: Array<ReleaseApproval> = new Array<ReleaseApproval>();
-        this._selection.value.forEach((range: ISelectionRange, rangeIndex: number) => {
+        this._selection.value.forEach((range: ISelectionRange) => {
             for (let index: number = range.beginIndex; index <= range.endIndex; index++) {
                 releases.push(this._tableRowData.value[index]);
             }
