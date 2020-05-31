@@ -102,6 +102,10 @@ export default class ReleaseApprovalGrid extends React.Component {
         ReleaseApprovalEvents.subscribe(EventType.RejectSingleRelease, (approval: ReleaseApproval) => {
             this.rejectSingle(approval);
         });
+
+        this._selection.subscribe((selection: ISelectionRange[], action: string) => {
+            ReleaseApprovalEvents.fire(EventType.GridRowSelectionChanged, selection, action, this._selection.selectedCount);
+        });
     }
 
     render(): JSX.Element {
