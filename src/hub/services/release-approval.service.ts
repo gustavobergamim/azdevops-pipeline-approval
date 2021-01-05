@@ -1,8 +1,28 @@
 import * as SDK from "azure-devops-extension-sdk";
 import { ReleaseRestClient, ApprovalStatus, EnvironmentStatus, ReleaseApproval } from "azure-devops-extension-api/Release";
-import { getClient, IProjectPageService, CommonServiceIds } from "azure-devops-extension-api";
+import { getClient, IProjectPageService, CommonServiceIds, IProjectInfo } from "azure-devops-extension-api";
 
 export class ReleaseApprovalService {
+
+    async findAllApprovals(): Promise<ReleaseApproval[]> {
+        const projectService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);
+        const project = await projectService.getProject();
+        const currentUser = SDK.getUser();
+        if (!project) return [];
+        let client: ReleaseRestClient = getClient(ReleaseRestClient);
+        const allApprovals: ReleaseApproval[] = [];
+        const top = 2;
+        let approvals: ReleaseApproval[];
+        let continuationToken = 0;
+        do {
+            approvals = await client.getApprovals(project.name, currentUser.id, undefined, undefined, undefined, top, continuationToken, undefined, true);
+            if (approvals.length > 0) {
+                allApprovals.push(...approvals.filter(a => a.id != continuationToken));
+                continuationToken = approvals[approvals.length - 1].id;
+            }
+        } while (approvals.length == top);
+        return allApprovals;
+    }
 
     async findApprovals(top: number = 50, continuationToken: number = 0): Promise<ReleaseApproval[]> {
         const projectService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);

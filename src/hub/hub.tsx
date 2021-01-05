@@ -8,10 +8,21 @@ import { Page } from "azure-devops-ui/Page";
 import ReleaseApprovalGrid from "@src-root/hub/components/grid/releaseapprovalgrid.component";
 import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
-import { ObservableArray } from "azure-devops-ui/Core/Observable";
+import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
 import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
+import { MessageCard, MessageCardSeverity } from "azure-devops-ui/MessageCard";
+import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
+import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
+import { Colors } from "./model/Colors";
+import { LocalStorageService } from "./services/local-storage.service";
 
 class Hub extends React.Component<{}> {
+
+  private _filtersMessageKey: string = "filters-message";
+  private _filtersToogleKey: string = "filters";
+  private _filtersToogle = false;
+  private _showMessage: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+  private _storageService: LocalStorageService = new LocalStorageService();
 
   _headerToolbar: React.RefObject<Header>;
   _releaseGrid: React.RefObject<ReleaseApprovalGrid>;
@@ -21,7 +32,9 @@ class Hub extends React.Component<{}> {
     super(props);
     this._headerToolbar = React.createRef();
     this._releaseGrid = React.createRef();
+    this.readQueryString();
     this.initCommandBar();
+    this.toogleMessage();
     this.subscribeEvents();
     SDK.init();
   }
@@ -29,6 +42,22 @@ class Hub extends React.Component<{}> {
   render(): JSX.Element {
     return (
       <Page className="flex-grow">
+        <ConditionalChildren renderChildren={this._showMessage}>
+          <MessageCard
+            className="flex-self-stretch"
+            onDismiss={this.onDismissMessage}
+            severity={MessageCardSeverity.Info}>
+            <Pill
+              iconProps={{ iconName: "Lightbulb" }}
+              color={Colors.darkRedColor}
+              size={PillSize.large}
+              variant={PillVariant.colored}
+              className="mr-5">
+              Try now!
+                </Pill>
+                Activate now the "Approvals with filters" preview feature and experiment filters for approvals.
+        </MessageCard>
+        </ConditionalChildren>
         <Header
           ref={this._headerToolbar}
           title={"Releases to Approve"}
@@ -36,11 +65,27 @@ class Hub extends React.Component<{}> {
           titleIconProps={{ iconName: "Rocket" }}
           commandBarItems={this._commandBarItems} />
         <div className="page-content page-content-top">
-          <ReleaseApprovalGrid ref={this._releaseGrid} />
+          <ReleaseApprovalGrid ref={this._releaseGrid} filtersEnabled={this._filtersToogle} />
         </div>
       </Page>
     );
   }
+
+  private readQueryString() {
+    const queryString = new URLSearchParams(window.location.search);
+    this._filtersToogle = queryString.has(this._filtersToogleKey) && JSON.parse(queryString.get(this._filtersToogleKey) || "false");
+  }
+
+  private toogleMessage() {
+    const storageValue = this._storageService.getValue(this._filtersMessageKey);
+    const messageRead = storageValue?.toLowerCase() === 'true';
+    this._showMessage.value = !messageRead && !this._filtersToogle; 
+  }
+
+  private onDismissMessage = () => {
+    this._storageService.setValue(this._filtersMessageKey, true.toString());
+    this.toogleMessage();
+  };
 
   private initCommandBar() {
     this._commandBarItems.push(this._buttonRefresh);
