@@ -154,7 +154,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
                                 items={this._stagesFilter}
                                 selection={this._stagesFilterSelection}
                                 placeholder="Stage"
-                                hideClearAction={true}
+                                hideClearAction={false}
                             />
                             <DropdownFilterBarItem
                                 filterItemKey={this.FilterType}
@@ -162,7 +162,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
                                 items={this._approvalTypeFilter}
                                 selection={this._approvalTypeFilterSelection}
                                 placeholder="Type"
-                                hideClearAction={true}
+                                hideClearAction={false}
                             />
                         </FilterBar>
                     </ConditionalChildren>
