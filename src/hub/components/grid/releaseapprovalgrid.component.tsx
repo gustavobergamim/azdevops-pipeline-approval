@@ -22,7 +22,7 @@ import ReleaseApprovalForm from "@src-root/hub/components/form/form.component";
 import { ReleaseService } from "@src-root/hub/services/release.service";
 
 import { FilterBar } from "azure-devops-ui/FilterBar";
-import { Filter, FilterOperatorType, FILTER_CHANGE_EVENT, IFilterState } from "azure-devops-ui/Utilities/Filter";
+import { Filter, FilterOperatorType, FILTER_CHANGE_EVENT, IFilterItemState } from "azure-devops-ui/Utilities/Filter";
 import { DropdownFilterBarItem } from "azure-devops-ui/Dropdown";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { DropdownSelection, DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
@@ -290,17 +290,17 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         const filterReleaseState = filterState[this.FilterRelease];
         const filterReleases = from(filterReleaseState && filterReleaseState.value ? filterReleaseState.value : []);
         if (filterReleases.any()) {
-            approvals = approvals.where(a => filterReleases.any(r => Number(r) == a.releaseDefinition.id));
+            approvals = approvals.where((a: ReleaseApproval) => filterReleases.any((r: IFilterItemState) => Number(r) == a.releaseDefinition.id));
         }
         const filterStageState = filterState[this.FilterStage];
         const filterStages = from(filterStageState && filterStageState.value ? filterStageState.value : []);
         if (filterStages.any()) {
-            approvals = approvals.where(a => filterStages.any(s => s.toString() == a.releaseEnvironment.name));
+            approvals = approvals.where((a: ReleaseApproval) => filterStages.any((s: IFilterItemState) => s.toString() == a.releaseEnvironment.name));
         }
         const filterTypeState = filterState[this.FilterType];
         const filterTypes = from(filterTypeState && filterTypeState.value ? filterTypeState.value : []);
         if (filterTypes.any()) {
-            approvals = approvals.where(a => filterTypes.any(t => Number(t) == a.approvalType));
+            approvals = approvals.where((a: ReleaseApproval) => filterTypes.any((t: IFilterItemState) => Number(t) == a.approvalType));
         }
         this._tableRowData.removeAll();
         this._tableRowData.push(...approvals.toArray());
