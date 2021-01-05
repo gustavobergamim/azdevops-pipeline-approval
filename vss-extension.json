@@ -61,6 +61,43 @@
   ],
   "contributions": [
     {
+      "id": "release-approval",
+      "type": "ms.vss-web.feature",
+      "description": "Show the Release Approval hub in the Azure Pipelines hub group",
+      "targets": [
+        "ms.vss-web.managed-features",
+        "ms.vss-web.managed-features-onprem"
+      ],
+      "properties": {
+        "name": "Release Approval",
+        "userConfigurable": false,
+        "hostConfigurable": false,
+        "defaultState": true
+      }
+    },
+    {
+      "id": "release-approval-stage-grouping",
+      "type": "ms.vss-web.feature",
+      "description": "Enable an early preview of filters on Release Approvals extension.",
+      "targets": [
+        "ms.vss-web.managed-features",
+        "ms.vss-web.managed-features-onprem"
+      ],
+      "properties": {
+        "name": "Release approvals filters",
+        "userConfigurable": true,
+        "hostConfigurable": true,
+        "defaultState": false,
+        "overrideRules": [
+          {
+            "name": "Feature",
+            "featureId": "gustavobergamim.pipeline-approval-dev.release-approval",
+            "when": "disabled"
+          }
+        ]
+      }
+    },
+    {
       "id": "pipeline-approval-hub",
       "type": "ms.vss-web.hub",
       "targets": [
@@ -73,7 +110,36 @@
           "light": "img/server_accept_black.png"
         },
         "uri": "dist/hub/hub.html"
-      }
+      },
+      "constraints": [
+        {
+          "name": "Feature",
+          "properties": {
+            "featureId": "gustavobergamim.pipeline-approval-dev.release-approval"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pipeline-approval-hub-stage-grouping",
+      "type": "ms.vss-web.property-provider",
+      "targets": [
+        ".pipeline-approval-hub"
+      ],
+      "properties": {
+        "type": "static",
+        "newProperties": {
+          "uri": "dist/hub/hub.html?filters=true"
+        }
+      },
+      "constraints": [
+        {
+          "name": "Feature",
+          "properties": {
+            "featureId": "gustavobergamim.pipeline-approval-dev.release-approval-stage-grouping"
+          }
+        }
+      ]
     }
   ]
 }

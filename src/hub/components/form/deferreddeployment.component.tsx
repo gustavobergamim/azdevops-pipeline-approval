@@ -60,14 +60,16 @@ export class FormDeferredDeployment extends React.Component<IFormDeferredDeploym
                         items={this.getDefferedDeploymentListBoxItems(24, 'h')}
                         showFilterBox={false}
                         selection={this._deferredDeploymentHourSelection}
-                        onSelect={this.onSelectDeferredDeploymentHour} />
+                        onSelect={this.onSelectDeferredDeploymentHour}
+                        width={75} />
                     <Dropdown
                         className={DatePickerControlClass.control}
                         placeholder="Minute"
                         items={this.getDefferedDeploymentListBoxItems(60, 'm')}
                         showFilterBox={false}
                         selection={this._deferredDeploymentMinuteSelection}
-                        onSelect={this.onSelectDeferredDeploymentMinute} />
+                        onSelect={this.onSelectDeferredDeploymentMinute}
+                        width={75} />
                 </div>
                 <ConditionalChildren renderChildren={this._deferredDeploymentInvalidDate}>
                     <div className="flex-row" style={{ marginBottom: "10px" }}>
