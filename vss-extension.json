@@ -91,7 +91,7 @@
         "overrideRules": [
           {
             "name": "Feature",
-            "featureId": "gustavobergamim.pipeline-approval-dev.release-approval",
+            "featureId": "gustavobergamim.pipeline-approval.release-approval",
             "when": "disabled"
           }
         ]
@@ -115,7 +115,7 @@
         {
           "name": "Feature",
           "properties": {
-            "featureId": "gustavobergamim.pipeline-approval-dev.release-approval"
+            "featureId": "gustavobergamim.pipeline-approval.release-approval"
           }
         }
       ]
@@ -136,7 +136,7 @@
         {
           "name": "Feature",
           "properties": {
-            "featureId": "gustavobergamim.pipeline-approval-dev.release-approval-stage-grouping"
+            "featureId": "gustavobergamim.pipeline-approval.release-approval-stage-grouping"
           }
         }
       ]
