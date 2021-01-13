@@ -11,7 +11,7 @@ export class ReleaseApprovalService {
         if (!project) return [];
         let client: ReleaseRestClient = getClient(ReleaseRestClient);
         const allApprovals: ReleaseApproval[] = [];
-        const top = 2;
+        const top = 500;
         let approvals: ReleaseApproval[];
         let continuationToken = 0;
         do {
