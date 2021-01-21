@@ -41,7 +41,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
     private _approvals: ReleaseApproval[] = [];
     private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
     // <NOFILTER>
-    private _pageLength: number = 2;
+    private _pageLength: number = 50;
     private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     // </NOFILTER>
     // <FILTER>
