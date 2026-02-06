@@ -28,7 +28,7 @@ import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { DropdownSelection, DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 import Enumerable from "linq";
 import { Button } from "azure-devops-ui/Button";
-import { IReleaseApprovalTableItem, ReleaseApprovalItemProvider } from "@src-root/hub/services/item-providers/release-approval.item-provider";
+import { ReleaseApprovalItemProvider } from "@src-root/hub/services/item-providers/release-approval.item-provider";
 
 export interface IReleaseApprovalGridProps {
     filtersEnabled: boolean;
@@ -41,7 +41,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
 
     private _approvals = new ArrayItemProvider<ReleaseApproval>([]);
     // private _tableRowData = new ReleaseApprovalItemProvider();
-    private itemProvider = new ObservableArray<ReleaseApproval | ObservableValue<ReleaseApproval | undefined>>(this._approvals.value);
+    private _tableItemProvider = new ReleaseApprovalItemProvider(this._approvals.value);
     // <NOFILTER>
     private _pageLength: number = 50;
     private _hasMoreItems: ObservableValue<boolean | undefined> = new ObservableValue<boolean | undefined>(false);
@@ -72,33 +72,30 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         return this._approvalForm.current as ReleaseApprovalForm;
     }
 
-    private _configureGridColumns(): ITableColumn<ReleaseApproval>[] {
-        return [
-            new ColumnSelect() as ITableColumn<{}>,
-            {
-                id: "pipeline",
-                name: "Release",
-                renderCell: renderGridPipelineCell,
-                width: 250
-            },
-            {
-                id: "releaseInfo",
-                renderCell: renderGridReleaseInfoCell,
-                width: -40
-            },
-            {
-                id: "approverInfo",
-                name: "Approval Status",
-                renderCell: renderGridApproverInfoCell,
-                width: -60
-            },
-            {
-                id: "actions",
-                renderCell: renderGridActionsCell,
-                width: 150
-            }
-        ]
-    }
+    private gridColumns: ITableColumn<ReleaseApproval>[] = [
+        {
+            id: "pipeline",
+            name: "Release",
+            renderCell: renderGridPipelineCell as any,
+            width: 250
+        },
+        {
+            id: "releaseInfo",
+            renderCell: renderGridReleaseInfoCell as any,
+            width: -40
+        },
+        {
+            id: "approverInfo",
+            name: "Approval Status",
+            renderCell: renderGridApproverInfoCell as any,
+            width: -60
+        },
+        {
+            id: "actions",
+            renderCell: renderGridActionsCell as any,
+            width: 150
+        }
+    ];
 
     constructor(props: IReleaseApprovalGridProps) {
         super(props);
@@ -170,8 +167,8 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
                     </ConditionalChildren>
                     <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
                         <Table<ReleaseApproval>
-                            columns={this._configureGridColumns()}
-                            itemProvider={this.itemProvider}
+                            columns={this.gridColumns}
+                            itemProvider={this._tableItemProvider}
                             selection={this._selection} />
                     </Card>
                     <ConditionalChildren renderChildren={!this.props.filtersEnabled && this._hasMoreItems}>
@@ -199,13 +196,14 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
 
     private loadDataOnDemand = async () => {
         let continuationToken = 0;
-        const lastIndex = this._tableRowData.value.length - 1;
+        const lastIndex = this._tableItemProvider.length - 1;
         if (lastIndex >= 0) {
-            const lastItem = this._tableRowData.value[lastIndex];
-            continuationToken = lastItem.id - 1;
+            const lastItem = this._tableItemProvider.getItem(lastIndex);
+            const item = lastItem instanceof ObservableValue ? lastItem.value : lastItem;
+            continuationToken = item.id - 1;
         }
         const rowShimmer = this.getRowShimmer(1);
-        this._tableRowData.push(...rowShimmer);
+        this._tableItemProvider.push(...rowShimmer);
         const approvals = await this._approvalsService.findApprovals(this._pageLength, continuationToken);
         const promises = approvals.map(async a => {
             await this._releaseService.getLinks(a);
@@ -213,19 +211,21 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         });
         await Promise.all(promises);
         this._hasMoreItems.value = this._pageLength == approvals.length;
-        this._tableRowData.pop();
-        this._tableRowData.push(...approvals.filter(a => this._tableRowData.value.every(x => x.id !== a.id)));
+        this._tableItemProvider.pop();
+        this._tableItemProvider.push(...approvals.filter(a => this._tableItemProvider.value.every(x => {
+            const item = x instanceof ObservableValue ? x.value : x;
+            return item ? item.id !== a.id : true;
+        })));
     }
 
     private loadDataForFilter = async () => {
-        this._approvals = [];
-        this._tableRowData.removeAll();
+        this._tableItemProvider.removeAll();
         const rowShimmer = this.getRowShimmer(1);
-        this._tableRowData.push(...rowShimmer);
-        this._approvals = await this._approvalsService.findAllApprovals();
-        await this._releaseService.fillLinks(this._approvals);
-        this._tableRowData.pop();
-        this._tableRowData.push(...this._approvals);
+        this._tableItemProvider.push(...rowShimmer);
+        this._approvals = new ArrayItemProvider<ReleaseApproval>(await this._approvalsService.findAllApprovals());
+        await this._releaseService.fillLinks(this._approvals.value);
+        this._tableItemProvider.pop();
+        this._tableItemProvider.push(...this._approvals.value);
         this._tableHasData.value = this._approvals.length > 0;
         this.updateFilters();
     }
@@ -255,7 +255,10 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
     }
 
     private updateReleasesFilter() {
-        let releaseDefinitions = this._tableRowData.value.map(a => a.releaseDefinition);
+        let releaseDefinitions = this._tableItemProvider.value.map(a => {
+            const item = a instanceof ObservableValue ? a.value : a;
+            return item?.releaseDefinition;
+        }).filter(def => def);
         releaseDefinitions = releaseDefinitions.filter((definition, index) =>
             releaseDefinitions.findIndex(def => def.id === definition.id) === index);
         this._releaseFilter.removeAll();
@@ -274,7 +277,10 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
     }
 
     private updateStagesFilter() {
-        let stages = this._tableRowData.value.map(a => a.releaseEnvironment.name);
+        let stages = this._tableItemProvider.value.map(a => {
+            const item = a instanceof ObservableValue ? a.value : a;
+            return item?.releaseEnvironment?.name;
+        }).filter(stage => stage);
         stages = stages.filter((stage, index) => stages.indexOf(stage) === index);
         this._stagesFilter.removeAll();
         this._stagesFilter.push(...stages.map(stage => {
@@ -288,7 +294,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
 
     private filterData = () => {
         const filterState = this._filter.getState();
-        let approvals = Enumerable.from(this._approvals);
+        let approvals = Enumerable.from(this._approvals.value);
 
         const filterReleaseState = filterState[this.FilterRelease];
         const filterReleases = Enumerable.from(filterReleaseState && filterReleaseState.value ? filterReleaseState.value : []);
@@ -305,8 +311,8 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         if (filterTypes.any()) {
             approvals = approvals.where((a: ReleaseApproval) => filterTypes.any((t) => Number(t) == a.approvalType));
         }
-        this._tableRowData.removeAll();
-        this._tableRowData.push(...approvals.toArray());
+        this._tableItemProvider.removeAll();
+        this._tableItemProvider.push(...approvals.toArray());
     }
 
     private getRowShimmer(length: number): any[] {
@@ -314,7 +320,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
     }
 
     async refreshGrid(): Promise<void> {
-        this._tableRowData.removeAll();
+        this._tableItemProvider.removeAll();
         await this.loadData();
     }
 
@@ -361,7 +367,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         let releases: Array<ReleaseApproval> = new Array<ReleaseApproval>();
         this._selection.value.forEach((range: ISelectionRange) => {
             for (let index: number = range.beginIndex; index <= range.endIndex; index++) {
-                releases.push(this._tableRowData.value[index]);
+                releases.push(this._tableItemProvider.getItem(index) as ReleaseApproval);
             }
         });
         this._selectedReleases = new ArrayItemProvider<ReleaseApproval>(releases);

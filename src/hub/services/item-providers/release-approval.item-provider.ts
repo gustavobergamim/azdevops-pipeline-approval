@@ -1,20 +1,46 @@
-import { IObservableArrayEventArgs, IReadonlyObservableArray, IReadonlyObservableValue, ObservableArrayAction } from "azure-devops-ui/Core/Observable";
-import { ISimpleTableCell } from "azure-devops-ui/Table";
-import { IItemProvider } from "azure-devops-ui/Utilities/Provider";
+import { ReleaseApproval } from "azure-devops-extension-api/Release";
+import { IObservableArrayEventArgs, IReadonlyObservableValue, ObservableArray, ObservableArrayAction, ObservableValue } from "azure-devops-ui/Core/Observable";
+import { ArrayItemProvider, IItemProvider } from "azure-devops-ui/Utilities/Provider";
 
-export interface IReleaseApprovalTableItem extends ISimpleTableCell {
-    id: number;
-    releaseDefinition: ISimpleTableCell;
-    releaseEnvironment: ISimpleTableCell;
-    approvalType: ISimpleTableCell;
-}
+export class ReleaseApprovalItemProvider implements IItemProvider<ReleaseApproval | IReadonlyObservableValue<ReleaseApproval | undefined>> {
 
-export class ReleaseApprovalItemProvider implements IItemProvider<IReleaseApprovalTableItem | IReadonlyObservableValue<IReleaseApprovalTableItem | undefined>> {
-    getItem?: ((index: number) => IReleaseApprovalTableItem | IReadonlyObservableValue<IReleaseApprovalTableItem | undefined> | undefined) | undefined;
+    private internalItemProvider: ObservableArray<ReleaseApproval | ObservableValue<ReleaseApproval | undefined>>;
+
     length: number;
-    value: (IReleaseApprovalTableItem | IReadonlyObservableValue<IReleaseApprovalTableItem | undefined>)[];
-    subscribe?: ((observer: (value: IObservableArrayEventArgs<IReleaseApprovalTableItem | IReadonlyObservableValue<IReleaseApprovalTableItem | undefined>>, action?: ObservableArrayAction | undefined) => void, action?: ObservableArrayAction | undefined) => (value: IObservableArrayEventArgs<IReleaseApprovalTableItem | IReadonlyObservableValue<IReleaseApprovalTableItem | undefined>>, action?: ObservableArrayAction | undefined) => void) | undefined;
-    unsubscribe?: ((observer: (value: IObservableArrayEventArgs<IReleaseApprovalTableItem | IReadonlyObservableValue<IReleaseApprovalTableItem | undefined>>, action?: ObservableArrayAction | undefined) => void, action?: ObservableArrayAction | undefined) => void) | undefined;
+    value: (ReleaseApproval | IReadonlyObservableValue<ReleaseApproval | undefined>)[];
 
+    constructor(initialItems?: ReleaseApproval[]) {
+        this.internalItemProvider = new ObservableArray<ReleaseApproval | ObservableValue<ReleaseApproval | undefined>>(initialItems || []);
+        this.length = this.internalItemProvider.length;
+        this.value = this.internalItemProvider.value;
+    }
 
+    getItem = (index: number): ReleaseApproval | IReadonlyObservableValue<ReleaseApproval | undefined> | undefined => {
+        return this.internalItemProvider.value[index];
+    };
+
+    push(...items: (ReleaseApproval | ObservableValue<ReleaseApproval | undefined>)[]): void {
+        this.internalItemProvider.push(...items);
+        this.length = this.internalItemProvider.length;
+        this.value = this.internalItemProvider.value;
+    }
+
+    pop(): void {
+        this.internalItemProvider.pop();
+        this.length = this.internalItemProvider.length;
+        this.value = this.internalItemProvider.value;
+    }
+    removeAll(): void {
+        this.internalItemProvider.removeAll();
+        this.length = this.internalItemProvider.length;
+        this.value = this.internalItemProvider.value;
+    }       
+
+    subscribe(observer: (value: IObservableArrayEventArgs<ReleaseApproval | IReadonlyObservableValue<ReleaseApproval | undefined>>, action?: ObservableArrayAction | undefined) => void, action?: ObservableArrayAction | undefined) {
+        return this.internalItemProvider.subscribe(observer, action) as () => void;
+    }
+
+    unsubscribe(observer: (value: IObservableArrayEventArgs<ReleaseApproval | IReadonlyObservableValue<ReleaseApproval | undefined>>, action?: ObservableArrayAction | undefined) => void, action?: ObservableArrayAction | undefined) {
+        return this.internalItemProvider.unsubscribe(observer, action);
+    }
 }

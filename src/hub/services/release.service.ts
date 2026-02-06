@@ -29,12 +29,15 @@ export class ReleaseService {
 
         let releaseDefinitionsIds = this.getReleaseDefinitionsIds(approvals);
 
-        const promises = releaseDefinitionsIds.map(async id => await client.getDeployments(project.name, id, undefined
-            , undefined, undefined, undefined, DeploymentStatus.NotDeployed, DeploymentOperationStatus.Pending));
+        const promises = releaseDefinitionsIds.map(async id => {
+            const deploymentsResponse = await client.getDeployments(project.name, id, undefined
+                , undefined, undefined, undefined, DeploymentStatus.NotDeployed, DeploymentOperationStatus.Pending);
+            return deploymentsResponse.map(d => d);
+        });
         const deploymentsMatrix = await Promise.all(promises);
         if (deploymentsMatrix.length === 0) return;
 
-        const deployments = deploymentsMatrix.reduce((acumulator, current) => acumulator.concat(current));
+        const deployments = deploymentsMatrix.reduce((accumulator, current) => accumulator.concat(current), []);
         if (!deployments) return;
 
         approvals.forEach(a => {
