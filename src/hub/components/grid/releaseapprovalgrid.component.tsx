@@ -2,12 +2,12 @@ import "./grid.scss";
 
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
-import { Table, ITableColumn, ColumnSelect, ISimpleTableCell } from "azure-devops-ui/Table";
-import { IReadonlyObservableValue, ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
+import { Table, ColumnSelect } from "azure-devops-ui/Table";
+import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ListSelection } from "azure-devops-ui/List";
 import { CommonServiceIds, IGlobalMessagesService } from "azure-devops-extension-api";
-import { ArrayItemProvider, IItemProvider } from "azure-devops-ui/Utilities/Provider";
+import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
 import { ReleaseApprovalAction } from "@src-root/hub/model/ReleaseApprovalAction";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
@@ -22,7 +22,7 @@ import ReleaseApprovalForm from "@src-root/hub/components/form/form.component";
 import { ReleaseService } from "@src-root/hub/services/release.service";
 
 import { FilterBar } from "azure-devops-ui/FilterBar";
-import { Filter, FilterOperatorType, FILTER_CHANGE_EVENT, IFilterItemState } from "azure-devops-ui/Utilities/Filter";
+import { Filter, FilterOperatorType, FILTER_CHANGE_EVENT } from "azure-devops-ui/Utilities/Filter";
 import { DropdownFilterBarItem } from "azure-devops-ui/Dropdown";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { DropdownSelection, DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
