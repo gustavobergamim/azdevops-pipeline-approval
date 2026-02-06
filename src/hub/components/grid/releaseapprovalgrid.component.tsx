@@ -72,7 +72,8 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         return this._approvalForm.current as ReleaseApprovalForm;
     }
 
-    private gridColumns: ITableColumn<ReleaseApproval>[] = [
+    private gridColumns = [
+        new ColumnSelect(),
         {
             id: "pipeline",
             name: "Release",
@@ -166,7 +167,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
                         </FilterBar>
                     </ConditionalChildren>
                     <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
-                        <Table<ReleaseApproval>
+                        <Table<ReleaseApproval | {}>
                             columns={this.gridColumns}
                             itemProvider={this._tableItemProvider}
                             selection={this._selection} />
@@ -269,11 +270,6 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
                 iconProps: { iconName: "Rocket" }
             };
         }));
-        this._releaseFilter.push({
-            id: '999999',
-            text: 'TESTE',
-            iconProps: { iconName: "Rocket" }
-        });
     }
 
     private updateStagesFilter() {
