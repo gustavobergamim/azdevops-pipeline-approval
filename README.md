@@ -20,7 +20,7 @@ Special thanks to Vinicius Moura (Microsoft MVP) for always helping with Azure D
 
 ## Contribute
 
-Contributions to **Azure Pipelines Approval** are welcome. Please fork this repo.
+Contributions to **Releases Approval Dashboard** are welcome. Please fork this repo.
 
 - Submit bugs and help us verify fixes.
 - Submit pull requests for bug fixes and features and discuss existing proposals.

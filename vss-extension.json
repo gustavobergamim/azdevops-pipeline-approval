@@ -1,7 +1,7 @@
 {
   "manifestVersion": 1,
   "version": "1.0.0",
-  "name": "Azure Pipelines Approval",
+  "name": "Releases Approval Dashboard",
   "description": "A simple way for view and approve releases",
   "publisher": "gustavobergamim",
   "demands": [
