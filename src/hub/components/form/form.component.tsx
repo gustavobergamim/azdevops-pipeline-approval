@@ -23,7 +23,7 @@ export default class ReleaseApprovalForm extends React.Component<IReleaseApprova
     private _releaseService: ReleaseApprovalService = new ReleaseApprovalService();
     private _isOpen: ObservableValue<boolean> = new ObservableValue<boolean>(false);
     private _releases?: ArrayItemProvider<ReleaseApproval>;
-    private _approvalComment = new ObservableValue<string>("");
+    private _approvalComment = new ObservableValue<string | undefined>("");
     private _deferredDeployment: React.RefObject<FormDeferredDeployment>;
     private get deferredDeployment() {
         return this._deferredDeployment.current as FormDeferredDeployment;
@@ -103,9 +103,9 @@ export default class ReleaseApprovalForm extends React.Component<IReleaseApprova
             deferredDate = this.deferredDeployment.selectedDate;
         }
         if (this.props.action.value.type == ActionType.Approve) {
-            await this._releaseService.approveAll(this._releases.value, this._approvalComment.value, deferredDate);
+            await this._releaseService.approveAll(this._releases.value, this._approvalComment.value!, deferredDate);
         } else {
-            await this._releaseService.rejectAll(this._releases.value, this._approvalComment.value);
+            await this._releaseService.rejectAll(this._releases.value, this._approvalComment.value!);
         }
         this.closeDialog();
         ReleaseApprovalEvents.fire(EventType.ClearGridSelection);

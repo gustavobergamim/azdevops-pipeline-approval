@@ -1,5 +1,5 @@
 {
   "id": "pipeline-approval-qa",
   "public": false,
-  "name": "Azure Pipelines Approval [QA]"
+  "name": "Releases Approval Dashboard [QA]"
 }

@@ -18,7 +18,6 @@ module.exports = {
   },
   devtool: "inline-source-map",
   devServer: {
-    https: false,
     port: 3000
   },
   resolve: {
