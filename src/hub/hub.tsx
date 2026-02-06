@@ -21,7 +21,7 @@ class Hub extends React.Component<{}> {
   private _filtersMessageKey: string = "filters-message";
   private _filtersToogleKey: string = "filters";
   private _filtersToogle = false;
-  private _showMessage: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+  private _showMessage: ObservableValue<boolean | undefined> = new ObservableValue<boolean | undefined>(false);
   private _storageService: LocalStorageService = new LocalStorageService();
 
   _headerToolbar: React.RefObject<Header>;
@@ -54,9 +54,9 @@ class Hub extends React.Component<{}> {
               variant={PillVariant.colored}
               className="mr-5">
               Try now!
-                </Pill>
-                Activate now the "Approvals with filters" preview feature and experiment filters for approvals.
-        </MessageCard>
+            </Pill>
+            Activate now the "Approvals with filters" preview feature and experiment filters for approvals.
+          </MessageCard>
         </ConditionalChildren>
         <Header
           ref={this._headerToolbar}
@@ -79,7 +79,7 @@ class Hub extends React.Component<{}> {
   private toogleMessage() {
     const storageValue = this._storageService.getValue(this._filtersMessageKey);
     const messageRead = storageValue?.toLowerCase() === 'true';
-    this._showMessage.value = !messageRead && !this._filtersToogle; 
+    this._showMessage.value = !messageRead && !this._filtersToogle;
   }
 
   private onDismissMessage = () => {

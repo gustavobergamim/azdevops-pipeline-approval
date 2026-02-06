@@ -25,7 +25,7 @@ export class FormDeferredDeployment extends React.Component<IFormDeferredDeploym
     private _selectedHour: number = 0;
     private _selectedMinute: number = 0;
 
-    _deferredDeploymentInvalidDate = new ObservableValue<boolean>(false);
+    _deferredDeploymentInvalidDate = new ObservableValue<boolean | undefined>(false);
 
     constructor(props: IFormDeferredDeploymentProps) {
         super(props);

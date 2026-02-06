@@ -2,12 +2,12 @@ import "./grid.scss";
 
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
-import { Table, ITableColumn, ColumnSelect } from "azure-devops-ui/Table";
-import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
+import { Table, ITableColumn, ColumnSelect, ISimpleTableCell } from "azure-devops-ui/Table";
+import { IReadonlyObservableValue, ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
 import { ReleaseApprovalService } from "@src-root/hub/services/release-approval.service";
 import { ListSelection } from "azure-devops-ui/List";
 import { CommonServiceIds, IGlobalMessagesService } from "azure-devops-extension-api";
-import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
+import { ArrayItemProvider, IItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
 import { ReleaseApprovalAction } from "@src-root/hub/model/ReleaseApprovalAction";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
@@ -26,8 +26,9 @@ import { Filter, FilterOperatorType, FILTER_CHANGE_EVENT, IFilterItemState } fro
 import { DropdownFilterBarItem } from "azure-devops-ui/Dropdown";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { DropdownSelection, DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
-import { from } from "linq";
+import Enumerable from "linq";
 import { Button } from "azure-devops-ui/Button";
+import { IReleaseApprovalTableItem, ReleaseApprovalItemProvider } from "@src-root/hub/services/item-providers/release-approval.item-provider";
 
 export interface IReleaseApprovalGridProps {
     filtersEnabled: boolean;
@@ -38,14 +39,15 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
     private _approvalsService: ReleaseApprovalService = new ReleaseApprovalService();
     private _releaseService: ReleaseService = new ReleaseService();
 
-    private _approvals: ReleaseApproval[] = [];
-    private _tableRowData: ObservableArray<ReleaseApproval> = new ObservableArray<ReleaseApproval>([]);
+    private _approvals = new ArrayItemProvider<ReleaseApproval>([]);
+    // private _tableRowData = new ReleaseApprovalItemProvider();
+    private itemProvider = new ObservableArray<ReleaseApproval | ObservableValue<ReleaseApproval | undefined>>(this._approvals.value);
     // <NOFILTER>
     private _pageLength: number = 50;
-    private _hasMoreItems: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+    private _hasMoreItems: ObservableValue<boolean | undefined> = new ObservableValue<boolean | undefined>(false);
     // </NOFILTER>
     // <FILTER>
-    private _tableHasData: ObservableValue<boolean> = new ObservableValue<boolean>(false);
+    private _tableHasData: ObservableValue<boolean | undefined> = new ObservableValue<boolean | undefined>(false);
     // </FILTER>
 
     private _selection: ListSelection = new ListSelection({ selectOnFocus: false, multiSelect: true });
@@ -70,7 +72,7 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
         return this._approvalForm.current as ReleaseApprovalForm;
     }
 
-    private _configureGridColumns(): ITableColumn<{}>[] {
+    private _configureGridColumns(): ITableColumn<ReleaseApproval>[] {
         return [
             new ColumnSelect() as ITableColumn<{}>,
             {
@@ -167,8 +169,9 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
                         </FilterBar>
                     </ConditionalChildren>
                     <Card className="flex-grow bolt-table-card" contentProps={{ contentPadding: false }}>
-                        <Table columns={this._configureGridColumns()}
-                            itemProvider={this._tableRowData}
+                        <Table<ReleaseApproval>
+                            columns={this._configureGridColumns()}
+                            itemProvider={this.itemProvider}
                             selection={this._selection} />
                     </Card>
                     <ConditionalChildren renderChildren={!this.props.filtersEnabled && this._hasMoreItems}>
@@ -285,22 +288,22 @@ export default class ReleaseApprovalGrid extends React.Component<IReleaseApprova
 
     private filterData = () => {
         const filterState = this._filter.getState();
-        let approvals = from(this._approvals);
+        let approvals = Enumerable.from(this._approvals);
 
         const filterReleaseState = filterState[this.FilterRelease];
-        const filterReleases = from(filterReleaseState && filterReleaseState.value ? filterReleaseState.value : []);
+        const filterReleases = Enumerable.from(filterReleaseState && filterReleaseState.value ? filterReleaseState.value : []);
         if (filterReleases.any()) {
-            approvals = approvals.where((a: ReleaseApproval) => filterReleases.any((r: IFilterItemState) => Number(r) == a.releaseDefinition.id));
+            approvals = approvals.where((a: ReleaseApproval) => filterReleases.any((r) => Number(r) == a.releaseDefinition.id));
         }
         const filterStageState = filterState[this.FilterStage];
-        const filterStages = from(filterStageState && filterStageState.value ? filterStageState.value : []);
+        const filterStages = Enumerable.from(filterStageState && filterStageState.value ? filterStageState.value : []);
         if (filterStages.any()) {
-            approvals = approvals.where((a: ReleaseApproval) => filterStages.any((s: IFilterItemState) => s.toString() == a.releaseEnvironment.name));
+            approvals = approvals.where((a: ReleaseApproval) => filterStages.any((s) => String(s) == a.releaseEnvironment.name));
         }
         const filterTypeState = filterState[this.FilterType];
-        const filterTypes = from(filterTypeState && filterTypeState.value ? filterTypeState.value : []);
+        const filterTypes = Enumerable.from(filterTypeState && filterTypeState.value ? filterTypeState.value : []);
         if (filterTypes.any()) {
-            approvals = approvals.where((a: ReleaseApproval) => filterTypes.any((t: IFilterItemState) => Number(t) == a.approvalType));
+            approvals = approvals.where((a: ReleaseApproval) => filterTypes.any((t) => Number(t) == a.approvalType));
         }
         this._tableRowData.removeAll();
         this._tableRowData.push(...approvals.toArray());
