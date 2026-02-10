@@ -1,8 +1,8 @@
-# Azure Pipelines Approval
+# Releases Approval Dashboard
 
 [![Build Status](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_apis/build/status/PipelineApproval/PipelineApproval_GitHub_CI?branchName=master)](https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions/_build/latest?definitionId=18&branchName=master)
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=pipeline-approval)](https://sonarcloud.io/dashboard?id=pipeline-approval)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pipeline-approval&metric=alert_status&token=8d7f38d749d46a75c3e93782f259193a734bf9af)](https://sonarcloud.io/summary/new_code?id=pipeline-approval)
 
 
 See on [Visual Studio MarketPlace](https://marketplace.visualstudio.com/items?itemName=GustavoBergamim.pipeline-approval).
