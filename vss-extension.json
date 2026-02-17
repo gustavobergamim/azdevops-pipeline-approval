@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "version": "1.0.0",
+  "version": "1.3.2",
   "name": "Releases Approval Dashboard",
   "description": "A simple way for view and approve releases",
   "publisher": "gustavobergamim",
