@@ -20,7 +20,7 @@
   "cross-os": {
     "publish:dev:pat": {
       "darwin": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token $AZ_DEVOPS_MARKETPLACE_PAT",
-      "win32": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token %AZ_DEVOPS_MARKETPLACE_PAT%",
+      "win32": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token",
       "linux": "npm run compile:dev && tfx extension publish --manifest-globs vss-extension.json --overrides-file configs/dev.json --output-path out --share-with gustavobergamim --token $AZ_DEVOPS_MARKETPLACE_PAT"
     }
   },
