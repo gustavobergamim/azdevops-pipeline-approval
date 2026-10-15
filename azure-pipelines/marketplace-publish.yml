@@ -6,6 +6,9 @@ parameters:
   - name: shareWith
     type: string
     default: ''
+  - name: validationTimeoutMinutes
+    type: number
+    default: 30
 
 stages:
 - stage: ExtensionPublish${{parameters.environment}}
@@ -15,18 +18,31 @@ stages:
     pool:
       vmImage: 'ubuntu-24.04'
     environment: ${{parameters.environment}}
+    timeoutInMinutes: ${{ add(parameters.validationTimeoutMinutes, 15) }}
     strategy:
       runOnce:
         deploy:
           steps:
-          - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@2
-            displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.6.x'
-          - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-extension-build-task.PublishAzureDevOpsExtension@2
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.tfx-installer-build-task.TfxInstaller@5
+            displayName: 'Use Node CLI for Azure DevOps (tfx-cli): v0.x'
+            inputs:
+              version: 'v0.x'
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.publish-extension-build-task.PublishAzureDevOpsExtension@5
             displayName: 'Publish Extension'
             inputs:
+              connectTo: VsTeam
               connectedServiceName: 'VS MarketPlace'
               fileType: vsix
               vsixFile: ${{parameters.vsixFile}}
-              extensionVersion: $(ExtensionVersion)
+              noWaitValidation: true
               ${{ if ne(parameters.shareWith, '') }}:
                 arguments: --share-with ${{parameters.shareWith}}
+          - task: ms-devlabs.vsts-developer-tools-build-tasks.is-valid-extension-agent-build-task.IsAzureDevOpsExtensionValid@5
+            displayName: 'Wait for Marketplace validation'
+            inputs:
+              connectTo: VsTeam
+              connectedServiceName: 'VS MarketPlace'
+              method: vsix
+              vsixFile: ${{parameters.vsixFile}}
+              maxRetries: ${{parameters.validationTimeoutMinutes}}
+              minTimeout: 1

@@ -3,14 +3,15 @@ parameters:
   publishOutput: false
 
 steps:
-- task: NodeTool@0
+- task: UseNode@1
   inputs:
-    versionSpec: '24.x'
+    version: '24.x'
   displayName: 'Install Node.js'
 - script: npm install
   displayName: 'Resolving dependencies'
 - task: SonarCloudPrepare@4
   displayName: 'Prepare analysis on SonarCloud'
+  condition: and(succeeded(), ne(variables['System.PullRequest.IsFork'], 'True'))
   inputs:
     SonarCloud: SonarCloud
     organization: azuredevopsextensions
@@ -24,8 +25,10 @@ steps:
   displayName: 'Packing extension for Production'
 - task: SonarCloudAnalyze@4
   displayName: 'Run Code Analysis'
+  condition: and(succeeded(), ne(variables['System.PullRequest.IsFork'], 'True'))
 - task: SonarCloudPublish@4
   displayName: 'Publish Quality Gate Result'
+  condition: and(succeeded(), ne(variables['System.PullRequest.IsFork'], 'True'))
 - task: CopyFiles@2
   displayName: Copy vsix files
   condition: ${{parameters.publishOutput}}
