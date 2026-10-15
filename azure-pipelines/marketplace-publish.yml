@@ -9,6 +9,9 @@ parameters:
   - name: validationTimeoutMinutes
     type: number
     default: 30
+  - name: jobTimeoutMinutes
+    type: number
+    default: 60
 
 stages:
 - stage: ExtensionPublish${{parameters.environment}}
@@ -18,7 +21,7 @@ stages:
     pool:
       vmImage: 'ubuntu-24.04'
     environment: ${{parameters.environment}}
-    timeoutInMinutes: ${{ add(parameters.validationTimeoutMinutes, 15) }}
+    timeoutInMinutes: ${{parameters.jobTimeoutMinutes}}
     strategy:
       runOnce:
         deploy:

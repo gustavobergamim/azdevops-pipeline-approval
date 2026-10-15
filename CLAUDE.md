@@ -49,6 +49,14 @@ Org/project: `https://dev.azure.com/gustavobergamim/AzureDevOpsExtensions`, fold
   ```
 
   and installed task versions/handlers with `az devops invoke --area distributedtask --resource tasks --org https://dev.azure.com/gustavobergamim`.
+- Validate pipeline YAML changes before merging: push the branch and compile it with the preview API (no run is queued). A local YAML parse doesn't catch template expression errors.
+
+  ```shell
+  echo '{"previewRun": true, "resources": {"repositories": {"self": {"refName": "refs/heads/<branch>"}}}}' > preview.json
+  az devops invoke --area pipelines --resource preview --http-method POST --api-version 7.1 \
+    --route-parameters project=AzureDevOpsExtensions pipelineId=<20 = release, 26 = CI> \
+    --in-file preview.json --org https://dev.azure.com/gustavobergamim
+  ```
 
 ## Conventions
 
