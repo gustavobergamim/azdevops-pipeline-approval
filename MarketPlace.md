@@ -3,6 +3,10 @@
 This extension allows you to easily view releases that are pending approval for your user, allowing you to approve them directly from a simple grid view. You can approve them one by one or in batch.
 
 
+## Requirements
+
+Starting with version 2.0.0, this extension uses Azure DevOps REST API version 7.2. It works with Azure DevOps Services and with Azure DevOps Server versions that support REST API 7.2. Older on-premises servers (Azure DevOps Server 2022 and earlier, TFS) are no longer supported. On those servers, use version 1.x of the extension.
+
 ## Getting started
 
 ![Extension home screen](img/extension-home-screenshot.png)

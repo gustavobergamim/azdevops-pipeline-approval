@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
-    "module": "amd",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "sourceMap": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "skipLibCheck": true,
     "target": "ES2017",
     "rootDir": "src/",
     "outDir": "dist/",
     "jsx": "react",
     "lib": ["ES2017", "dom"],
     "types": ["react"],
-    "baseUrl": "./",
     "paths": {
-      "@src-root/*": [ "src/*" ]
+      "@src-root/*": [ "./src/*" ]
     },
   },
   "exclude": ["node_modules", "typings"]

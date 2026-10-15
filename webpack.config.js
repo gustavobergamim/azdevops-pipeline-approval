@@ -17,7 +17,11 @@ module.exports = {
   },
   devtool: "inline-source-map",
   devServer: {
-    port: 3000
+    port: 3000,
+    // The manifest loads dist/hub/hub.html from baseUri (configs/dev.json)
+    devMiddleware: {
+      publicPath: "/dist/"
+    }
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
