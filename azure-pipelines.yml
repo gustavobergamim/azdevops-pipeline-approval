@@ -1,4 +1,4 @@
-name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)_v$(ExtensionVersion)
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger: none
 
@@ -12,6 +12,11 @@ stages:
     pool:
       vmImage: 'ubuntu-24.04'
     steps:
+    - script: |
+        version=$(node -p "require('./vss-extension.json').version")
+        echo "Extension version: $version"
+        echo "##vso[build.updatebuildnumber]$(Build.BuildNumber)_v$version"
+      displayName: 'Read extension version'
     - template: azure-pipelines/build-steps.yml
       parameters:
         packQA: true
