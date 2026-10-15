@@ -2,7 +2,7 @@ import * as React from "react";
 import { Card } from "azure-devops-ui/Card";
 import { ObservableValue } from "azure-devops-ui/Core/Observable";
 import { Customizer, Fabric, DatePicker, DayOfWeek, initializeIcons } from "office-ui-fabric-react";
-import { DatePickerStrings, DatePickerControlClass } from "@src-root/hub/model/officeui-datepicker.types";
+import { DatePickerStrings, DatePickerControlClass, DatePickerTheme, DatePickerStyles, DatePickerTextFieldProps } from "@src-root/hub/model/officeui-datepicker.types";
 import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { Dropdown } from "azure-devops-ui/Dropdown";
@@ -42,10 +42,12 @@ export class FormDeferredDeployment extends React.Component<IFormDeferredDeploym
             titleProps={{ text: "Defer deployment for later" }} >
             <div>
                 <div className="flex-row">
-                    <Customizer>
+                    <Customizer settings={{ theme: DatePickerTheme }}>
                         <Fabric>
                             <DatePicker
                                 className={DatePickerControlClass.control}
+                                styles={DatePickerStyles}
+                                textField={DatePickerTextFieldProps}
                                 firstDayOfWeek={DayOfWeek.Sunday}
                                 strings={DatePickerStrings}
                                 placeholder="Date"
