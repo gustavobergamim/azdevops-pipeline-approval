@@ -1,4 +1,4 @@
-import Events = require('events');
+import * as Events from 'events';
 
 export declare const enum EventType {
     RefreshGrid = 0,
