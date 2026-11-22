@@ -13,7 +13,8 @@ module.exports = {
   target: "web",
   entry: entries,
   output: {
-    filename: "[name]/[name].js"
+    filename: "[name]/[name].js",
+    publicPath: "/dist/"
   },
   devtool: "inline-source-map",
   devServer: {
