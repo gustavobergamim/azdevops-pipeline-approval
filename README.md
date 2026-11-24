@@ -10,7 +10,7 @@ See on [Visual Studio MarketPlace](https://marketplace.visualstudio.com/items?it
 
 ---
 
-This extension allows you to easily view releases that are pending approval for your user, allowing you to approve them directly from a simple grid view. You can approve them one by one or in batch.
+This extension allows you to easily view classic releases and YAML pipeline stages that are pending approval for your user, allowing you to approve them directly from a simple grid view. You can approve them one by one or in batch.
 
 
 ## Contributors

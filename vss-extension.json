@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "version": "2.0.1",
+  "version": "2.1.0",
   "name": "Releases Approval Dashboard",
   "description": "A simple way for view and approve releases",
   "publisher": "gustavobergamim",
@@ -13,7 +13,8 @@
   "scopes": [
     "vso.agentpools",
     "vso.build",
-    "vso.release_manage"
+    "vso.release_manage",
+    "vso.build_execute"
   ],
   "targets": [
     {
@@ -104,7 +105,7 @@
         "ms.vss-build-web.build-release-hub-group"
       ],
       "properties": {
-        "name": "Approve Releases",
+        "name": "Pending Approvals",
         "icon": {
           "dark": "img/server_accept_white.png",
           "light": "img/server_accept_black.png"
