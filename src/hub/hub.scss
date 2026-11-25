@@ -6,3 +6,12 @@
     padding: 32px 16px;
     text-align: center;
 }
+
+// When the column is narrow, pills such as "Newer run waiting" move to the next line instead of being clipped.
+.yaml-pills.bolt-pill-group.overflow-wrap > .bolt-pill-group-inner {
+    row-gap: 4px;
+
+    .bolt-pill {
+        margin-bottom: 0;
+    }
+}

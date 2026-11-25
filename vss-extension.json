@@ -11,8 +11,6 @@
     "Azure Pipelines"
   ],
   "scopes": [
-    "vso.agentpools",
-    "vso.build",
     "vso.release_manage",
     "vso.build_execute"
   ],

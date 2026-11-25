@@ -42,7 +42,7 @@ class Hub extends React.Component<{}> {
   private _filtersToogle = false;
   private _showMessage: ObservableValue<boolean | undefined> = new ObservableValue<boolean | undefined>(false);
   private _storageService: LocalStorageService = new LocalStorageService();
-  private _selectedTab: ObservableValue<string> = new ObservableValue<string>(TAB_CLASSIC);
+  private _selectedTab: ObservableValue<string> = new ObservableValue<string>(TAB_YAML);
   private _classicSelectedCount = 0;
   private _yamlSelectedCount = 0;
 
@@ -99,8 +99,8 @@ class Hub extends React.Component<{}> {
           selectedTabId={this._selectedTab}
           onSelectedTabChanged={this.onSelectedTabChanged}
           tabSize={TabSize.Tall}>
-          <Tab id={TAB_CLASSIC} name="Classic releases" iconProps={{ iconName: "Rocket" }} />
           <Tab id={TAB_YAML} name="YAML pipelines" iconProps={{ iconName: "Build" }} />
+          <Tab id={TAB_CLASSIC} name="Classic releases" iconProps={{ iconName: "Rocket" }} />
         </TabBar>
         <Observer selectedTab={this._selectedTab}>
           {(props: { selectedTab: string }) => (
@@ -127,9 +127,10 @@ class Hub extends React.Component<{}> {
     this._filtersToogle = queryString.has(this._filtersToogleKey) && JSON.parse(queryString.get(this._filtersToogleKey) || "false");
   }
 
+  /** Opens the last tab used; YAML pipelines when there is none. */
   private readSelectedTab() {
     const storedTab = this._storageService.getValue(this._selectedTabKey);
-    this._selectedTab.value = storedTab === TAB_YAML ? TAB_YAML : TAB_CLASSIC;
+    this._selectedTab.value = storedTab === TAB_CLASSIC ? TAB_CLASSIC : TAB_YAML;
   }
 
   private toogleMessage() {

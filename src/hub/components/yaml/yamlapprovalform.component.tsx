@@ -9,7 +9,7 @@ import { ScrollableList, IListItemDetails, ListItem } from "azure-devops-ui/List
 import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { Icon, IconSize } from "azure-devops-ui/Icon";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
-import { PillGroup } from "azure-devops-ui/PillGroup";
+import { PillGroup, PillGroupOverflow } from "azure-devops-ui/PillGroup";
 import { MessageCard, MessageCardSeverity } from "azure-devops-ui/MessageCard";
 import { Colors } from "@src-root/hub/model/Colors";
 import { ReleaseApprovalAction } from "@src-root/hub/model/ReleaseApprovalAction";
@@ -122,7 +122,7 @@ export default class YamlApprovalForm extends React.Component<IYamlApprovalFormP
                     <div style={{ marginLeft: "10px", padding: "10px 0px" }} className="flex-column h-scroll-hidden">
                         <span className="text-ellipsis">{item.pipelineName}</span>
                         <span className="fontSizeMS font-size-ms text-ellipsis secondary-text" style={{ marginTop: "5px" }}>
-                            <PillGroup className="flex-row">
+                            <PillGroup className="flex-row yaml-pills" overflow={PillGroupOverflow.wrap}>
                                 <Pill size={PillSize.compact} variant={PillVariant.outlined}>#{item.runName}</Pill>
                                 <Pill size={PillSize.compact} variant={PillVariant.colored} color={Colors.darkRedColor}>
                                     {item.stageName || "Stage"}

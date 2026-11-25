@@ -5,7 +5,7 @@ import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { Link } from "azure-devops-ui/Link";
 import { Icon } from "azure-devops-ui/Icon";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
-import { PillGroup } from "azure-devops-ui/PillGroup";
+import { PillGroup, PillGroupOverflow } from "azure-devops-ui/PillGroup";
 import { Duration } from "azure-devops-ui/Duration";
 import { Button } from "azure-devops-ui/Button";
 import { ButtonGroup } from "azure-devops-ui/ButtonGroup";
@@ -45,7 +45,7 @@ export function renderYamlStageCell(rowIndex: number, columnIndex: number, table
             tableColumn={tableColumn}
             className="no-v-padding"
             line1={
-                <PillGroup className="flex-row">
+                <PillGroup className="flex-row yaml-pills" overflow={PillGroupOverflow.wrap}>
                     <Pill size={PillSize.compact} variant={PillVariant.colored} color={Colors.darkRedColor}>
                         {tableItem.stageName || "Stage"}
                     </Pill>

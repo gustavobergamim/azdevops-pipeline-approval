@@ -7,14 +7,14 @@ This extension allows you to easily view classic releases and YAML pipeline stag
 
 Starting with version 2.0.0, this extension uses Azure DevOps REST API version 7.2. It works with Azure DevOps Services and with Azure DevOps Server versions that support REST API 7.2. Older on-premises servers (Azure DevOps Server 2022 and earlier, TFS) are no longer supported. On those servers, use version 1.x of the extension.
 
-Starting with version 2.1.0, the extension also asks for the **Build (read and execute)** scope, used by the **YAML pipelines** tab to approve and reject stages. An organization administrator has to approve the new permission before the update is applied.
+Starting with version 2.1.0, the extension also asks for the **Build (read and execute)** scope, used by the **YAML pipelines** tab to approve and reject stages. An organization administrator has to approve the new permission before the update is applied. The same version drops the **Agent pools (read)** scope, which the extension didn't use, and the separate **Build (read)** scope, which **Build (read and execute)** already includes.
 
 ## Getting started
 
 ![Extension home screen](img/extension-home-screenshot.png)
 
 1. From the Pipeline hub, select the **Pending Approvals** option
-2. The **Classic releases** tab will display all releases pending approval
+2. The hub opens on the **YAML pipelines** tab (see [YAML pipelines](#yaml-pipelines)), or on the last tab you used. The **Classic releases** tab will display all releases pending approval
 3. From each release, you can **approve** or **reject**
    **Note:** If you prefer, you can select more than one release for approval (or rejection) and select **Approve All** (**Reject All**) button.
 4. If you want/need, You can schedule deployment for later with deferred deployment feature:
