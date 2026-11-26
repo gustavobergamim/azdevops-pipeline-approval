@@ -7,7 +7,13 @@ export declare const enum EventType {
     RejectAllReleases = 3,
     ApproveSingleRelease = 4,
     ApproveAllReleases = 5,
-    GridRowSelectionChanged = 6
+    GridRowSelectionChanged = 6,
+    YamlRefreshGrid = 7,
+    YamlApproveSelected = 8,
+    YamlRejectSelected = 9,
+    YamlApproveSingle = 10,
+    YamlRejectSingle = 11,
+    YamlSelectionChanged = 12
 }
 
 export namespace ReleaseApprovalEvents {

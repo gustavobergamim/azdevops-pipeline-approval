@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Azure DevOps extension ("Releases Approval Dashboard") that adds an **Approve Releases** hub under Pipelines, listing classic Release approvals pending for the current user and approving/rejecting/deferring them one by one or in batch.
+Azure DevOps extension ("Releases Approval Dashboard") that adds a **Pending Approvals** hub under Pipelines, listing the YAML pipeline stage approvals and classic Release approvals pending for the current user and approving/rejecting them (and deferring classic releases) one by one or in batch.
 
 ## Stack
 
@@ -11,8 +11,9 @@ Azure DevOps extension ("Releases Approval Dashboard") that adds an **Approve Re
 
 ## Layout
 
-- `src/hub/hub.tsx` – hub page entry, header command bar, filters toggle (`?filters=true` query string, set by the `release-approval-stage-grouping` feature flag).
-- `src/hub/components/` – `grid/` (approvals grid and its cells), `form/` (approve/reject/defer dialogs).
+- `src/hub/hub.tsx` – hub page entry, header command bar (acts on the active tab), "YAML pipelines" (default) / "Classic releases" tabs (reopens on the last tab used, kept in `localStorage`), filters toggle (`?filters=true` query string, set by the `release-approval-stage-grouping` feature flag).
+- `src/hub/components/` – `grid/` (classic approvals grid and its cells), `form/` (approve/reject/defer dialogs), `yaml/` (YAML stage approvals grid, cells and confirmation panel; loads on first activation of the tab).
+- `src/hub/services/yaml-approval.service.ts` – YAML approvals via `_apis/pipelines/approvals` (api-version 7.1, raw `fetch` with the extension token because `azure-devops-extension-api` has no client for it); stage names come from the run timeline (`Checkpoint.Approval` → parent `Stage`).
 - `src/hub/services/` – REST wrappers (`release-approval.service.ts`, `release.service.ts`), extension data storage (`user.service.ts`), `localStorage` (`local-storage.service.ts`), grid item provider.
 - `src/hub/model/` – events (`ReleaseApprovalEvents`), actions, colors, date picker types.
 - `vss-extension.json` – manifest (contributions, scopes, feature flags). **Its `version` is the single source of truth for the extension version.**

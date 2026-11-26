@@ -1,4 +1,5 @@
 import "azure-devops-ui/Core/override.css";
+import "./hub.scss";
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
@@ -6,6 +7,7 @@ import * as SDK from "azure-devops-extension-sdk";
 import { Header, TitleSize } from "azure-devops-ui/Header";
 import { Page } from "azure-devops-ui/Page";
 import ReleaseApprovalGrid from "@src-root/hub/components/grid/releaseapprovalgrid.component";
+import YamlApprovalGrid from "@src-root/hub/components/yaml/yamlapprovalgrid.component";
 import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
 import { ReleaseApprovalEvents, EventType } from "@src-root/hub/model/ReleaseApprovalEvents";
 import { ObservableArray, ObservableValue } from "azure-devops-ui/Core/Observable";
@@ -13,30 +15,59 @@ import { ISelectionRange } from "azure-devops-ui/Utilities/Selection";
 import { MessageCard, MessageCardSeverity } from "azure-devops-ui/MessageCard";
 import { ConditionalChildren } from "azure-devops-ui/ConditionalChildren";
 import { Pill, PillSize, PillVariant } from "azure-devops-ui/Pill";
+import { Observer } from "azure-devops-ui/Observer";
+import { Tab, TabBar, TabSize } from "azure-devops-ui/Tabs";
 import { Colors } from "./model/Colors";
 import { LocalStorageService } from "./services/local-storage.service";
+
+const TAB_CLASSIC = "classic";
+const TAB_YAML = "yaml";
+
+/** Renders its children once and never re-renders them, so tab switches don't reload the grids. */
+class StaticContent extends React.Component<{ children?: React.ReactNode }> {
+  shouldComponentUpdate(): boolean {
+    return false;
+  }
+
+  render(): JSX.Element {
+    return <React.Fragment>{this.props.children}</React.Fragment>;
+  }
+}
 
 class Hub extends React.Component<{}> {
 
   private _filtersMessageKey: string = "filters-message";
   private _filtersToogleKey: string = "filters";
+  private _selectedTabKey: string = "selected-tab";
   private _filtersToogle = false;
   private _showMessage: ObservableValue<boolean | undefined> = new ObservableValue<boolean | undefined>(false);
   private _storageService: LocalStorageService = new LocalStorageService();
+  private _selectedTab: ObservableValue<string> = new ObservableValue<string>(TAB_YAML);
+  private _classicSelectedCount = 0;
+  private _yamlSelectedCount = 0;
 
   _headerToolbar: React.RefObject<Header>;
   _releaseGrid: React.RefObject<ReleaseApprovalGrid>;
+  _yamlGrid: React.RefObject<YamlApprovalGrid>;
   _commandBarItems: ObservableArray<IHeaderCommandBarItem> = new ObservableArray<IHeaderCommandBarItem>([]);
 
   constructor(props: {}) {
     super(props);
     this._headerToolbar = React.createRef();
     this._releaseGrid = React.createRef();
+    this._yamlGrid = React.createRef();
     this.readQueryString();
-    this.initCommandBar();
+    this.readSelectedTab();
+    this.updateCommandBar();
     this.toogleMessage();
     this.subscribeEvents();
     SDK.init();
+  }
+
+  componentDidMount(): void {
+    if (this._selectedTab.value === TAB_YAML) {
+      SDK.ready().then(() => this.activateYamlTab());
+    }
   }
 
   render(): JSX.Element {
@@ -60,13 +91,33 @@ class Hub extends React.Component<{}> {
         </ConditionalChildren>
         <Header
           ref={this._headerToolbar}
-          title={"Releases to Approve"}
+          title={"Pending Approvals"}
           titleSize={TitleSize.Medium}
           titleIconProps={{ iconName: "Rocket" }}
           commandBarItems={this._commandBarItems} />
-        <div className="page-content page-content-top">
-          <ReleaseApprovalGrid ref={this._releaseGrid} filtersEnabled={this._filtersToogle} />
-        </div>
+        <TabBar
+          selectedTabId={this._selectedTab}
+          onSelectedTabChanged={this.onSelectedTabChanged}
+          tabSize={TabSize.Tall}>
+          <Tab id={TAB_YAML} name="YAML pipelines" iconProps={{ iconName: "Build" }} />
+          <Tab id={TAB_CLASSIC} name="Classic releases" iconProps={{ iconName: "Rocket" }} />
+        </TabBar>
+        <Observer selectedTab={this._selectedTab}>
+          {(props: { selectedTab: string }) => (
+            <div className="page-content page-content-top">
+              <div style={props.selectedTab === TAB_CLASSIC ? undefined : { display: "none" }}>
+                <StaticContent>
+                  <ReleaseApprovalGrid ref={this._releaseGrid} filtersEnabled={this._filtersToogle} />
+                </StaticContent>
+              </div>
+              <div style={props.selectedTab === TAB_YAML ? undefined : { display: "none" }}>
+                <StaticContent>
+                  <YamlApprovalGrid ref={this._yamlGrid} />
+                </StaticContent>
+              </div>
+            </div>
+          )}
+        </Observer>
       </Page>
     );
   }
@@ -74,6 +125,12 @@ class Hub extends React.Component<{}> {
   private readQueryString() {
     const queryString = new URLSearchParams(window.location.search);
     this._filtersToogle = queryString.has(this._filtersToogleKey) && JSON.parse(queryString.get(this._filtersToogleKey) || "false");
+  }
+
+  /** Opens the last tab used; YAML pipelines when there is none. */
+  private readSelectedTab() {
+    const storedTab = this._storageService.getValue(this._selectedTabKey);
+    this._selectedTab.value = storedTab === TAB_CLASSIC ? TAB_CLASSIC : TAB_YAML;
   }
 
   private toogleMessage() {
@@ -87,25 +144,45 @@ class Hub extends React.Component<{}> {
     this.toogleMessage();
   };
 
-  private initCommandBar() {
+  private onSelectedTabChanged = (newTabId: string) => {
+    this._selectedTab.value = newTabId;
+    this._storageService.setValue(this._selectedTabKey, newTabId);
+    this.updateCommandBar();
+    if (newTabId === TAB_YAML) {
+      this.activateYamlTab();
+    }
+  };
+
+  private activateYamlTab() {
+    if (this._yamlGrid.current) {
+      this._yamlGrid.current.activate();
+    }
+  }
+
+  private get isYamlTab(): boolean {
+    return this._selectedTab.value === TAB_YAML;
+  }
+
+  /** Shows Approve/Reject Selected only when the active tab has a selection. */
+  private updateCommandBar() {
+    const selectedCount = this.isYamlTab ? this._yamlSelectedCount : this._classicSelectedCount;
+    this._commandBarItems.removeAll();
+    if (selectedCount > 0) {
+      this._commandBarItems.push(this._buttonApproveSelected, this._buttonRejectSelected);
+    }
     this._commandBarItems.push(this._buttonRefresh);
   }
 
   private subscribeEvents(): void {
     ReleaseApprovalEvents.subscribe(EventType.GridRowSelectionChanged,
       async (selection: ISelectionRange[], action: string, selectedItemsCount: number) => {
-        const hasSelection = selectedItemsCount > 0;
-        if (hasSelection) {
-          this._commandBarItems.removeAll();
-          this._commandBarItems.push(
-            this._buttonApproveSelected,
-            this._buttonRejectSelected,
-            this._buttonRefresh
-          );
-        } else if (this._commandBarItems.length > 1) {
-          this._commandBarItems.splice(0, 2);
-        }
+        this._classicSelectedCount = selectedItemsCount;
+        this.updateCommandBar();
       });
+    ReleaseApprovalEvents.subscribe(EventType.YamlSelectionChanged, (selectedItemsCount: number) => {
+      this._yamlSelectedCount = selectedItemsCount;
+      this.updateCommandBar();
+    });
   }
 
   private _buttonApproveSelected: IHeaderCommandBarItem = {
@@ -114,7 +191,7 @@ class Hub extends React.Component<{}> {
       iconName: "CheckMark"
     },
     important: true,
-    onActivate: () => ReleaseApprovalEvents.fire(EventType.ApproveAllReleases),
+    onActivate: () => ReleaseApprovalEvents.fire(this.isYamlTab ? EventType.YamlApproveSelected : EventType.ApproveAllReleases),
     text: "Approve Selected",
     isPrimary: true
   };
@@ -126,7 +203,7 @@ class Hub extends React.Component<{}> {
     },
     important: true,
     className: "danger",
-    onActivate: () => ReleaseApprovalEvents.fire(EventType.RejectAllReleases),
+    onActivate: () => ReleaseApprovalEvents.fire(this.isYamlTab ? EventType.YamlRejectSelected : EventType.RejectAllReleases),
     text: "Reject Selected"
   };
 
@@ -136,7 +213,7 @@ class Hub extends React.Component<{}> {
       iconName: "Refresh"
     },
     important: true,
-    onActivate: () => ReleaseApprovalEvents.fire(EventType.RefreshGrid),
+    onActivate: () => ReleaseApprovalEvents.fire(this.isYamlTab ? EventType.YamlRefreshGrid : EventType.RefreshGrid),
     text: "Refresh"
   };
 }
